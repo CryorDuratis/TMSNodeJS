@@ -2,8 +2,14 @@ const express = require("express")
 const session = require("express-session")
 const bodyParser = express.json()
 const app = express()
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(session({ secret: "super-secret" }))
+app.use(bodyParser)
+app.use(
+  session({
+    resave: true,
+    saveUninitialized: false,
+    secret: "super-secret"
+  })
+)
 
 // URL received is /login
 exports.loginDisplay = async (req, res, next) => {
@@ -52,5 +58,5 @@ exports.admin = async (req, res, next) => {
     })
   }
   // redirect to login page
-  res.redirect("/login")
+  res.redirect("/login?redirect_url=/admin")
 }
