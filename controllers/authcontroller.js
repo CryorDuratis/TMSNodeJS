@@ -1,16 +1,3 @@
-const express = require("express")
-const session = require("express-session")
-const bodyParser = express.json()
-const app = express()
-app.use(bodyParser)
-app.use(
-  session({
-    resave: true,
-    saveUninitialized: false,
-    secret: "super-secret"
-  })
-)
-
 // URL received is /login
 exports.loginDisplay = async (req, res, next) => {
   if (req.session.isLoggedIn === true) {

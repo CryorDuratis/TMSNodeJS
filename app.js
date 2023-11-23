@@ -1,13 +1,14 @@
 // All node modules are imported here
 const express = require("express")
 const dotenv = require("dotenv")
+const session = require("express-session")
 
 // All app modules are imported here
 const usermgmt = require("./routes/usermgmt")
 const taskmgmt = require("./routes/taskmgmt")
 
 // Express is initiated here
-app = express()
+const app = express()
 
 // Uncaught exception error shuts down server here
 
@@ -15,9 +16,17 @@ app = express()
 dotenv.config({ path: "./config/config.env" })
 const port = process.env.PORT
 const environment = process.env.NODE_ENV
+const bodyParser = express.json()
 
 // Middleware and Routes used here
-express.json() // Bodyparser from express
+app.use(bodyParser)
+app.use(
+  session({
+    resave: true,
+    saveUninitialized: true,
+    secret: "super-secret"
+  })
+)
 app.use(usermgmt)
 app.use(taskmgmt)
 
