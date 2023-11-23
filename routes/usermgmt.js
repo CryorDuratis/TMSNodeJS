@@ -2,8 +2,7 @@
 const express = require("express")
 
 // All app modules are imported here
-const { loginDisplay, loginForm, logout } = require("authcontroller")
-const { admin } = require("admincontroller")
+const { loginDisplay, loginForm, logout, admin } = require("../controllers/authcontroller")
 
 // const { isAuthenticatedUser, authorizeRoles } = require('../middleware/auth.js')
 

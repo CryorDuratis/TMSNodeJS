@@ -2,7 +2,7 @@
 const express = require("express")
 
 // All app modules are imported here
-const { home } = require("tmscontroller")
+const { home } = require("../controllers/tmscontroller")
 
 // const { isAuthenticatedUser, authorizeRoles } = require('../middleware/auth.js')
 
