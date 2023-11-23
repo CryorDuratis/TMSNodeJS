@@ -15,6 +15,7 @@ const port = process.env.PORT
 const environment = process.env.NODE_ENV
 
 // Middleware and Routes used here
+express.json() // Bodyparser from express
 
 // Server started on port
 const server = app.listen(port, () => {
