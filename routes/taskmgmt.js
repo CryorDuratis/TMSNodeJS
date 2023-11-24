@@ -2,7 +2,7 @@
 const express = require("express")
 
 // All app modules are imported here
-const { home } = require("../controllers/tmscontroller")
+const { home, admin } = require("../controllers/tmscontroller")
 
 // const { isAuthenticatedUser, authorizeRoles } = require('../middleware/auth.js')
 
@@ -11,6 +11,7 @@ const router = express.Router()
 
 // Routes are defined here
 router.route("/").get(home) // loggedin ? home : redirect login
+router.route("/admin").get(admin) // loggedin ? admin : redirect login
 
 // Router is exported
 module.exports = router

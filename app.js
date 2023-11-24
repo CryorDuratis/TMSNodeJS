@@ -1,7 +1,8 @@
 // All node modules are imported here
 const express = require("express")
-const dotenv = require("dotenv")
 const session = require("express-session")
+const dotenv = require("dotenv")
+const cors = require("cors")
 
 // All app modules are imported here
 const usermgmt = require("./routes/usermgmt")
@@ -19,6 +20,7 @@ const environment = process.env.NODE_ENV
 const bodyParser = express.json()
 
 // Middleware and Routes used here
+app.use(cors())
 app.use(bodyParser)
 app.use(
   session({

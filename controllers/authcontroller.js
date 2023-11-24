@@ -33,17 +33,5 @@ exports.loginForm = async (req, res, next) => {
 exports.logout = async (req, res, next) => {
   req.session.isLoggedIn = false
   // redirect to home page
-  res.redirect("/")
-}
-
-exports.admin = async (req, res, next) => {
-  if (req.session.isLoggedIn === true) {
-    // proceed
-    return res.status(200).json({
-      success: true,
-      message: "admin works"
-    })
-  }
-  // redirect to login page
-  res.redirect("/login?redirect_url=/admin")
+  res.redirect("/login")
 }
