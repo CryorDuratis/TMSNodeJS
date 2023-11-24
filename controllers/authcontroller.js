@@ -1,10 +1,14 @@
+// require node modules
+const bcrypt = require("bcryptjs")
+
+// require app modules
+const { executeQuery } = require("../config/db")
+const sendToken = require("../util/JWToken")
+
 // URL received is /login
 exports.loginDisplay = async (req, res, next) => {
-  if (req.session.isLoggedIn === true) {
-    // redirects to home page
-    return res.redirect("/")
-  }
-  // continues to login page
+  // if jwttoken is on browser, react will redirect
+  // displays
   res.status(200).json({
     success: true,
     message: "login works"
@@ -14,24 +18,40 @@ exports.loginDisplay = async (req, res, next) => {
 // login form submitted
 exports.loginForm = async (req, res, next) => {
   const { username, password } = req.body
+  console.log(username)
+  console.log(password)
+  // sql query for matching user
+  var querystr = `SELECT username, \`password\` FROM users WHERE username = '${username}'`
 
-  // sql query if username and password correct
-
-  if (username === "bob" && password === "1234") {
-    req.session.isLoggedIn = true
-    res.redirect(req.query.redirect_url ? req.query.redirect_url : "/")
-  } else {
-    // if wrong, stay on same page and display error
-    res.status(401).json({
-      success: false,
-      message: "invalid login info"
-    })
+  try {
+    const result = await executeQuery(querystr)
+    // if right, send token and user info, react displays home
+    if (result[0]) {
+      // const cryptedpw = await bcrypt.hash(password)
+      if (password === result[0].password) {
+        sendToken(username, 200, res)
+      }
+    } else {
+      // else, react displays same page
+      res.status(401).json({
+        success: false,
+        message: "invalid login info"
+      })
+    }
+  } catch (error) {
+    console.error("Error executing query:", error.message)
   }
 }
 
-// URL received is /logout
+// URL received is /logout, token will be emptied, then react side will check for token and redirect to login
 exports.logout = async (req, res, next) => {
-  req.session.isLoggedIn = false
-  // redirect to home page
-  res.redirect("/login")
+  res.cookie("token", "none", {
+    expires: new Date(Date.now()),
+    httpOnly: true
+  })
+
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully"
+  })
 }

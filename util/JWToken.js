@@ -1,14 +1,15 @@
 // require node modules
 const jwt = require("jsonwebtoken")
+const dotenv = require("dotenv")
 
 // dotenv set up
-require("dotenv").config({ path: "./config/config.env" })
+dotenv.config({ path: "./config/config.env" })
 
 // token to send back using cookie
-const sendToken = (user, statusCode, res) => {
+const sendToken = (username, statusCode, res) => {
   // creates token based on user that logged in
-  const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRY
+  const token = jwt.sign(username, process.env.JWT_SECRET, {
+    expiresIn: 3000
   })
 
   // sets cookie options

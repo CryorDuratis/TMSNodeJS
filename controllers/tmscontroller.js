@@ -6,8 +6,6 @@ exports.home = async (req, res, next) => {
       message: "home works"
     })
   }
-  // redirect to login page
-  res.redirect("/login")
 }
 
 exports.admin = async (req, res, next) => {
@@ -18,6 +16,4 @@ exports.admin = async (req, res, next) => {
       message: "admin works"
     })
   }
-  // redirect to login page
-  res.redirect("/login?redirect_url=/admin")
 }

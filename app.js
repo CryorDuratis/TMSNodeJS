@@ -1,8 +1,8 @@
 // All node modules are imported here
 const express = require("express")
-const session = require("express-session")
 const dotenv = require("dotenv")
 const cors = require("cors")
+const cookieParser = require("cookie-parser")
 
 // All app modules are imported here
 const usermgmt = require("./routes/usermgmt")
@@ -22,13 +22,7 @@ const bodyParser = express.json()
 // Middleware and Routes used here
 app.use(cors())
 app.use(bodyParser)
-app.use(
-  session({
-    resave: true,
-    saveUninitialized: true,
-    secret: "super-secret"
-  })
-)
+app.use(cookieParser())
 app.use(usermgmt)
 app.use(taskmgmt)
 
