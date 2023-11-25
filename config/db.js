@@ -17,9 +17,9 @@ const pool = mysql.createPool({
 })
 const promisePool = pool.promise()
 
-async function executeQuery(querystr) {
+async function executeQuery(querystr, values) {
   try {
-    const [rows, fields] = await promisePool.query(querystr)
+    const [rows, fields] = await promisePool.query(querystr, values)
     console.log(rows)
     return rows
   } catch (error) {
@@ -27,7 +27,7 @@ async function executeQuery(querystr) {
     throw error // Re-throw the error to propagate it
   } finally {
     // Don't forget to release the connection back to the pool
-    pool.end()
+    // pool.end()
   }
 }
 
