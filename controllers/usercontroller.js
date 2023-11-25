@@ -65,7 +65,7 @@ exports.edit = async (req,res,next)=> {
 
   try {
     const result = await executeQuery(querystr, values)
-      // else, react displays same page
+      // return result
       res.status(200).json({
         success: true,
         message: "username and email displayed to for edit screen"
@@ -87,7 +87,7 @@ exports.editform = async (req,res,next)=> {
   try {
     console.log(querystr)
     const result = await executeQuery(querystr,values) // replace all the ? with the form values
-      // else, react displays same page
+      // return result
       res.status(200).json({
         success: true,
         message: "profile edited successfully"
@@ -95,5 +95,94 @@ exports.editform = async (req,res,next)=> {
     
   } catch (error) {
     console.error("Error executing query:", error.message)
+  }
+}
+
+// URL received is /admin
+exports.admin = async (req, res, next) => {
+  // get all user info
+  var querystr = `SELECT * FROM users`
+  const values = []
+
+  try {
+    const result = await executeQuery(querystr, values)
+      // return result
+      res.status(200).json({
+        success: true,
+        message: `admin works, ${result.length} user(s) found`
+      })
+    
+  } catch (error) {
+    console.error("Error executing query:", error.message)
+  }
+}
+
+// admin form submitted
+exports.adminForm = async (req,res,next)=> {
+  if (req.body.formtype === "edit") {
+    var fields = Object.keys(req.body);
+    var values = Object.values(req.body);
+
+    const setClause = fields.slice(0,-2).map(field => `\`${field}\` = ?`).join(', '); // slice to exclude the field "currUsername"
+    values = values.map(value => (value === 'active' ? 1 : value === 'disabled' ? 0 : value)); // converts elements "active" to 1
+
+    var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
+    values.push(req.body.currUsername) // in case username is modified, currUsername will be used to locate the user
+    try {
+      const result = await executeQuery(querystr,values) // replace all the ? with the form values
+        // return result
+        res.status(200).json({
+          success: true,
+          message: "user edited successfully"
+        })
+      
+    } catch (error) {
+      console.error("Error executing query:", error.message)
+    }
+  } else if (req.body.formtype === "create") {
+    // check if username is duplicate
+    var querystr = `SELECT username FROM users WHERE username = '${req.body.username}'`
+    try {
+      const result = await executeQuery(querystr,values) // replace all the ? with the form values
+        // return result
+        if (result.length > 0)
+        res.status(400).json({
+          success: false,
+          message: "user already exists"
+        })
+      
+    } catch (error) {
+      console.error("Error executing query:", error.message)
+    }
+    // create new user
+
+    const requiredFields = ['username', 'password'];
+    
+    var fields = Object.keys(req.body)
+    var values = Object.values(req.body)
+    
+    // Validate that required fields are present
+    if (requiredFields.some(field => !values[fields.indexOf(field)])) {
+      return res.status(400).json({ error: 'Username and password are required fields' });
+    }
+    
+    const placeholders = fields.slice(0,-1).map(field => `\`${field}\` = ?`).join(', ');
+    querystr = `INSERT INTO users SET ${placeholders}`;
+    try {
+      const result = await executeQuery(querystr,values) // replace all the ? with the form values
+        // return result
+        res.status(200).json({
+          success: true,
+          message: "user created successfully"
+        })
+      
+    } catch (error) {
+      console.error("Error executing query:", error.message)
+    }
+  } else {
+    res.status(400).json({
+      success: false,
+      message: "how did you get here"
+    })
   }
 }

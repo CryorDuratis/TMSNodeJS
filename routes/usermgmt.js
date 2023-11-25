@@ -2,7 +2,7 @@
 const express = require("express")
 
 // All app modules are imported here
-const { loginDisplay,loginForm, logout, edit, editform } = require("../controllers/usercontroller")
+const { loginDisplay,loginForm, logout, edit, editform, admin, adminForm } = require("../controllers/usercontroller")
 const { isAuthenticatedUser } = require("../middleware/auth")
 
 // const { isAuthenticatedUser, authorizeRoles } = require('../middleware/auth.js')
@@ -16,6 +16,8 @@ router.route("/login").post(loginForm) // valid(res token) ? redirected url || h
 router.route("/logout").get(isAuthenticatedUser,logout) // loggedin? logout : login
 router.route("/edit").get(isAuthenticatedUser,edit) // loggedin? display edit : login
 router.route("/edit").post(isAuthenticatedUser,editform) // loggedin? submit form -> valid(password rule) -> updated : login
+router.route("/admin").get(isAuthenticatedUser, admin) // loggedin ? admin : redirect login
+router.route("/admin").post(isAuthenticatedUser, adminForm) // loggedin ? submitform -> valid -> updated : login
 
 // Router is exported
 module.exports = router
