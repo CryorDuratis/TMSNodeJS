@@ -20,7 +20,6 @@ const promisePool = pool.promise()
 async function executeQuery(querystr, values) {
   try {
     const [rows, fields] = await promisePool.query(querystr, values)
-    console.log(rows)
     return rows
   } catch (error) {
     console.error("Error executing query:", error.message)

@@ -21,10 +21,11 @@ exports.loginForm = async (req, res, next) => {
   console.log(username)
   console.log(password)
   // sql query for matching user
-  var querystr = `SELECT username, \`password\` FROM users WHERE username = '${username}'`
+  var querystr = `SELECT username, \`password\` FROM users WHERE username = ?`
+  const values = [username]
 
   try {
-    const result = await executeQuery(querystr)
+    const result = await executeQuery(querystr,values)
     // if right, send token and user info, react displays home
     if (result[0]) {
       // const cryptedpw = await bcrypt.hash(password)
@@ -59,10 +60,11 @@ exports.logout = async (req, res, next) => {
 // URL received is /profile/edit
 exports.edit = async (req,res,next)=> {
   // on click, show edit profile component, get username and email to display
-  var querystr = `SELECT email FROM users WHERE username = '${req.user}'`
+  var querystr = `SELECT email FROM users WHERE username = ?`
+  const values = [req.user]
 
   try {
-    const result = await executeQuery(querystr)
+    const result = await executeQuery(querystr, values)
       // else, react displays same page
       res.status(200).json({
         success: true,
@@ -81,7 +83,6 @@ exports.editform = async (req,res,next)=> {
   const setClause = fields.map(field => `\`${field}\` = ?`).join(', '); // col1 = ?, col2 = ?...
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
   values.push(req.user) // ensures that username is bounded by ''
-  console.log(values)
 
   try {
     console.log(querystr)
