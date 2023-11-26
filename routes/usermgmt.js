@@ -14,8 +14,8 @@ const router = express.Router()
 router.route("/login").get(isAuthenticatedUser,loginDisplay) // loggedin(token) ? redirect home : login
 router.route("/login").post(loginForm) // valid(res token) ? redirected url || home : res error -> login
 router.route("/logout").get(isAuthenticatedUser,logout) // loggedin? logout : login
-router.route("/edit").get(isAuthenticatedUser,edit) // loggedin? display edit : login
-router.route("/edit").post(isAuthenticatedUser,editform) // loggedin? submit form -> valid(password rule) -> updated : login
+router.route("/profile").get(isAuthenticatedUser,edit) // loggedin? display edit : login
+router.route("/profile").post(isAuthenticatedUser,editform) // loggedin? submit form -> valid(password rule) -> updated : login
 router.route("/admin").get(isAuthenticatedUser, admin) // loggedin ? admin : redirect login
 router.route("/admin").post(isAuthenticatedUser, adminForm) // loggedin ? submitform -> valid -> updated : login
 

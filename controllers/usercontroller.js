@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs")
 const { executeQuery } = require("../config/db")
 const sendToken = require("../util/JWToken")
 const { checkGroup } = require("../util/checkGroup")
+const { hashPass } = require("../util/hashPass")
 
 // URL received is /login
 exports.loginDisplay = async (req, res, next) => {
@@ -29,9 +30,15 @@ exports.loginForm = async (req, res, next) => {
     const result = await executeQuery(querystr,values)
     // if right, send token and user info, react displays home
     if (result[0]) {
-      // const cryptedpw = await bcrypt.hash(password)
-      if (password === result[0].password) {
-        sendToken(username, 200, res)
+      console.log("user login password: ", result[0].password)
+      // compares the passwords asynchronously
+      const isMatched = bcrypt.compare(password, result[0].password, (err) => {
+        if (err) {
+          console.error('Error comparing password:', err);
+          return;
+        }})
+      if (isMatched) {
+      sendToken(username, 200, res)
       }
     } else {
       // else, react displays same page
@@ -79,6 +86,11 @@ exports.edit = async (req,res,next)=> {
 
 // edit form submitted
 exports.editform = async (req,res,next)=> {
+  if (req.body.password) {
+    // hash password
+    req.body.password = await hashPass(req.body.password)
+    console.log("hashed password is: ", req.body.password)
+  }
   const fields = Object.keys(req.body);
   const values = Object.values(req.body);
   const setClause = fields.map(field => `\`${field}\` = ?`).join(', '); // col1 = ?, col2 = ?...
@@ -111,19 +123,29 @@ exports.admin = async (req, res, next) => {
   }
     // get all user info
     var querystr = `SELECT * FROM users`
-    const values = []
+    var values = []
   
     try {
       const result = await executeQuery(querystr, values)
-        // return result
-        res.status(200).json({
-          success: true,
-          message: `admin works, ${result.length} user(s) found`
-        })
-      
+      // get all group info
+      querystr = `SELECT * FROM grouplist`
+    
+      try {
+        const result2 = await executeQuery(querystr, values)
+          // return result
+          res.status(200).json({
+            success: true,
+            message: `admin works, ${result.length} user(s) found, ${result2.length} group(s) found`,
+            data: result
+          })
+        
+      } catch (error) {
+        console.error("Error executing query:", error.message)
+      }      
     } catch (error) {
       console.error("Error executing query:", error.message)
     }
+    
 }
 
 // admin form submitted
@@ -136,16 +158,30 @@ exports.adminForm = async (req,res,next)=> {
       message: `unauthorized access`
     })
   }
+  if (req.body.password) {
+    // hash password
+    req.body.password = await hashPass(req.body.password)
+    console.log("hashed password is: ", req.body.password)
+  }
     // check form type
     if (req.body.formtype === "edit") {
       var fields = Object.keys(req.body);
       var values = Object.values(req.body);
-  
-      const setClause = fields.slice(0,-2).map(field => `\`${field}\` = ?`).join(', '); // slice to exclude the field "currUsername"
-      values = values.map(value => (value === 'active' ? 1 : value === 'disabled' ? 0 : value)); // converts elements "active" to 1
+
+      // slice to exclude the field "currUsername"
+      const setClause = fields.slice(0,-2).map(field => `\`${field}\` = ?`).join(', '); 
+
+      // converts form body to db appropriate values
+        values = values.slice(0,-2).map(value => ( 
+          value === 'role' ? value.join(',') : 
+          value === 'active' ? 1 : 
+          value === 'disabled' ? 0 : 
+          value
+          )); 
   
       var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
       values.push(req.body.currUsername) // in case username is modified, currUsername will be used to locate the user
+          console.log("values are: ", values)
       try {
         const result = await executeQuery(querystr,values) // replace all the ? with the form values
           // return result
@@ -183,7 +219,25 @@ exports.adminForm = async (req,res,next)=> {
       if (requiredFields.some(field => !values[fields.indexOf(field)])) {
         return res.status(400).json({ error: 'Username and password are required fields' });
       }
-      
+      // converts form body to db appropriate values
+      bcrypt.genSalt(10, (err, salt) => {
+        if (err) {
+          console.error('Error generating salt:', err);
+          return;
+        }
+        
+        values = values.map(value => ( 
+          value === 'password' ? bcrypt.hash(password, salt, (err) => {
+            if (err) {
+              console.error('Error hashing password:', err);
+              return;
+            }
+          }) :
+          value === 'role' ? value.join(',') : 
+          value
+          )); 
+        })
+
       const placeholders = fields.slice(0,-1).map(field => `\`${field}\` = ?`).join(', ');
       querystr = `INSERT INTO users SET ${placeholders}`;
       try {
@@ -197,6 +251,35 @@ exports.adminForm = async (req,res,next)=> {
       } catch (error) {
         console.error("Error executing query:", error.message)
       }
+    } else if (req.body.formtype === "group") {
+      // check if group is duplicate
+      var querystr = `SELECT * FROM grouplist WHERE groupname = '${req.body.role}'`
+      try {
+        const result = await executeQuery(querystr,values) // replace all the ? with the form values
+          // return result
+          if (result.length > 0)
+          res.status(400).json({
+            success: false,
+            message: "group already exists"
+          })
+        
+      } catch (error) {
+        console.error("Error executing query:", error.message)
+      }
+      // create new group
+      var values = [req.body.role]
+      querystr = `INSERT INTO grouplist VALUES (?)`;
+      try {
+        const result = await executeQuery(querystr,values) // replace all the ? with the form values
+          // return result
+          res.status(200).json({
+            success: true,
+            message: "group created successfully"
+          })
+        
+      } catch (error) {
+        console.error("Error executing query:", error.message)
+      }
     } else {
       res.status(400).json({
         success: false,
@@ -204,3 +287,4 @@ exports.adminForm = async (req,res,next)=> {
       })
     }
 }
+
