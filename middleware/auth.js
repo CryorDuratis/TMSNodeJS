@@ -8,6 +8,7 @@ dotenv.config({ path: "./config/config.env" })
 //catch async
 //errorhandler
 
+// check loggedin
 exports.isAuthenticatedUser = async (req, res, next) => {
   let token
   // splits username and token
@@ -31,7 +32,7 @@ exports.isAuthenticatedUser = async (req, res, next) => {
     }
     // passes down loggedin user username
     req.user = payload.username
-    console.log(req.user)
+    console.log("current username:",req.user)
   
     next()
   })
