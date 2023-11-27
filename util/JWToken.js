@@ -8,7 +8,7 @@ dotenv.config({ path: "./config/config.env" })
 // token to send back using cookie
 const sendToken = (username, statusCode, res) => {
   // creates token based on user that logged in
-  const token = jwt.sign({username}, process.env.JWT_SECRET, {
+  const token = jwt.sign({ username }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRY
   })
 
