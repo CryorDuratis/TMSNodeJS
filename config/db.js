@@ -2,6 +2,9 @@
 const mysql = require("mysql2")
 const dotenv = require("dotenv")
 
+// errorhandler
+const ErrorHandler = require("../util/errorHandler")
+
 // dotenv set up
 dotenv.config({ path: "./config/config.env" }) // path is from root directory, not this parent folder
 
@@ -23,11 +26,10 @@ async function executeQuery(querystr, values) {
     return rows
   } catch (error) {
     console.error("Error executing query:", error.message)
+    new ErrorHandler("You are not authorized to view this page, please check with your team if you think this is a mistake", 403)
     throw error // Re-throw the error to propagate it
-  } finally {
-    // Don't forget to release the connection back to the pool
-    // pool.end()
   }
+  // pool.end()
 }
 
 module.exports = { executeQuery }
