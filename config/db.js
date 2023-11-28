@@ -2,9 +2,6 @@
 const mysql = require("mysql2")
 const dotenv = require("dotenv")
 
-// errorhandler
-const ErrorHandler = require("../util/errorHandler")
-
 // dotenv set up
 dotenv.config({ path: "./config/config.env" }) // path is from root directory, not this parent folder
 
@@ -20,16 +17,15 @@ const pool = mysql.createPool({
 })
 const promisePool = pool.promise()
 
-async function executeQuery(querystr, values) {
+const executeQuery = Promise.resolve(async (querystr, values) => {
   try {
     const [rows, fields] = await promisePool.query(querystr, values)
     return rows
-  } catch (error) {
-    console.error("Error executing query:", error.message)
-    new ErrorHandler("You are not authorized to view this page, please check with your team if you think this is a mistake", 403)
-    throw error // Re-throw the error to propagate it
-  }
+  } catch (error) {}
   // pool.end()
-}
+}).catch(error => {
+  console.error("Error executing query:", error.message)
+  throw error
+})
 
 module.exports = { executeQuery }

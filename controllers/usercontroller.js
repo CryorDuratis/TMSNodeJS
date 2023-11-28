@@ -4,27 +4,27 @@ const bcrypt = require("bcryptjs")
 // require app modules
 const { executeQuery } = require("../config/db")
 const sendToken = require("../util/JWToken")
-const { hashPass } = require("../util/hashPass")
 const ErrorHandler = require("../util/errorHandler")
-const catchAsyncErrors = require("../middleware/catchAsyncErrors")
 
 // URL get /login
-exports.loginDisplay = catchAsyncErrors(async (req, res, next) => {
-  // if jwttoken is on browser, react will redirect
-  // displays
-  res.status(200).json({
+exports.loginDisplay = Promise.resolve(async (req, res, next) => {
+  res.json({
     success: true,
     message: "login works"
   })
-})
+}).catch(next)
 
 // URL post /login
-exports.loginForm = catchAsyncErrors(async (req, res, next) => {
+exports.loginForm = Promise.resolve(async (req, res, next) => {
   const { username, password } = req.body
 
   // if empty login submission
   if (!req.body.username || !req.body.password) {
-    return next(new ErrorHandler("Please enter Login Details", 400))
+    return res.json({
+      success: false,
+      error: "required",
+      message: "Please enter Login Details"
+    })
   }
 
   // sql query for matching user
@@ -54,10 +54,10 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   }
 
   sendToken(username, 200, res)
-})
+}).catch(next)
 
 // URL get /logout, token will be emptied, then react side will check for token and redirect to login
-exports.logout = catchAsyncErrors(async (req, res, next) => {
+exports.logout = Promise.resolve(async (req, res, next) => {
   res.cookie("token", "none", {
     expires: new Date(Date.now()),
     httpOnly: true
@@ -67,10 +67,10 @@ exports.logout = catchAsyncErrors(async (req, res, next) => {
     success: true,
     message: "Logged out successfully"
   })
-})
+}).catch(next)
 
 // URL get /profile
-exports.profile = catchAsyncErrors(async (req, res, next) => {
+exports.profile = Promise.resolve(async (req, res, next) => {
   // on click, show edit profile component, get username and email to display
   var querystr = `SELECT email FROM users WHERE username = ?`
   const values = [req.user]
@@ -81,13 +81,14 @@ exports.profile = catchAsyncErrors(async (req, res, next) => {
     success: true,
     message: "username and email displayed to for edit screen"
   })
-})
+}).catch(next)
 
 // URL post /profile/edit
-exports.editform = catchAsyncErrors(async (req, res, next) => {
+exports.editform = Promise.resolve(async (req, res, next) => {
   if (req.body.password) {
     // hash password
-    req.body.password = await hashPass(req.body.password)
+    const salt = await bcrypt.genSalt(10)
+    req.body.password = await bcrypt.hash(req.body.password, salt)
     console.log("hashed password is: ", req.body.password)
   }
   const fields = Object.keys(req.body)
@@ -103,10 +104,10 @@ exports.editform = catchAsyncErrors(async (req, res, next) => {
     success: true,
     message: "profile edited successfully"
   })
-})
+}).catch(next)
 
 // URL get /admin
-exports.admin = catchAsyncErrors(async (req, res, next) => {
+exports.admin = Promise.resolve(async (req, res, next) => {
   // get all user info
   var querystr = `SELECT * FROM users`
   var values = []
@@ -122,13 +123,14 @@ exports.admin = catchAsyncErrors(async (req, res, next) => {
     message: `admin works, ${result.length} user(s) found, ${result2.length} group(s) found`,
     data: result
   })
-})
+}).catch(next)
 
 // URL post /admin/edit
-exports.adminEditForm = catchAsyncErrors(async (req, res, next) => {
+exports.adminEditForm = Promise.resolve(async (req, res, next) => {
   if (req.body.password) {
     // hash password
-    req.body.password = await hashPass(req.body.password)
+    const salt = await bcrypt.genSalt(10)
+    req.body.password = await bcrypt.hash(req.body.password, salt)
     console.log("hashed password is: ", req.body.password)
   }
 
@@ -154,17 +156,18 @@ exports.adminEditForm = catchAsyncErrors(async (req, res, next) => {
     success: true,
     message: "user edited successfully"
   })
-})
+}).catch(next)
 
 // URL post /admin/create
-exports.adminCreateForm = catchAsyncErrors(async (req, res, next) => {
+exports.adminCreateForm = Promise.resolve(async (req, res, next) => {
   // Validate that required fields are present
   if (!req.body.password || !req.body.username) {
     return next(new ErrorHandler("Please enter all required fields", 400))
   }
 
   // hash password
-  req.body.password = await hashPass(req.body.password)
+  const salt = await bcrypt.genSalt(10)
+  req.body.password = await bcrypt.hash(req.body.password, salt)
   console.log("hashed password is: ", req.body.password)
 
   // check if username is duplicate
@@ -194,10 +197,10 @@ exports.adminCreateForm = catchAsyncErrors(async (req, res, next) => {
     success: true,
     message: "user created successfully"
   })
-})
+}).catch(next)
 
 // URL post /admin/group
-exports.adminGroupForm = catchAsyncErrors(async (req, res, next) => {
+exports.adminGroupForm = Promise.resolve(async (req, res, next) => {
   // Validate that required fields are present
   if (!req.body.role) {
     return next(new ErrorHandler("Please enter all required fields", 400))
@@ -219,4 +222,4 @@ exports.adminGroupForm = catchAsyncErrors(async (req, res, next) => {
     success: true,
     message: "group created successfully"
   })
-})
+}).catch(next)
