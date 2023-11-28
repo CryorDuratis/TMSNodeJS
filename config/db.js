@@ -13,19 +13,18 @@ const pool = mysql.createPool({
   database: process.env.DB_DATABASE,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
 })
 const promisePool = pool.promise()
 
 const executeQuery = Promise.resolve(async (querystr, values) => {
-  try {
-    const [rows, fields] = await promisePool.query(querystr, values)
-    return rows
-  } catch (error) {}
-  // pool.end()
-}).catch(error => {
+  const [rows, fields] = await promisePool.query(querystr, values)
+  return rows
+}).catch((error) => {
   console.error("Error executing query:", error.message)
-  throw error
+  return res.json({
+    error: error.name,
+  })
 })
 
 module.exports = { executeQuery }
