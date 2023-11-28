@@ -1,5 +1,5 @@
 // require app modules
-const { executeQuery } = require("../config/db")
+const { executeQuery } = require("../functions/db")
 
 // URL get app/:appacro/tasks/:taskid
 exports.taskinfo = Promise.resolve(async (req, res, next) => {
