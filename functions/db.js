@@ -1,6 +1,7 @@
 // require node modules
 const mysql = require("mysql2")
 const dotenv = require("dotenv")
+const catchAsyncErrors = require("./catchAsyncErrors")
 
 // dotenv set up
 dotenv.config({ path: "./config/config.env" }) // path is from root directory, not this parent folder
@@ -17,14 +18,9 @@ const pool = mysql.createPool({
 })
 const promisePool = pool.promise()
 
-const executeQuery = Promise.resolve(async (querystr, values) => {
+const executeQuery = catchAsyncErrors(async (querystr, values) => {
   const [rows, fields] = await promisePool.query(querystr, values)
   return rows
-}).catch((error) => {
-  console.error("Error executing query:", error.message)
-  return res.json({
-    error: error.name,
-  })
 })
 
 module.exports = { executeQuery }

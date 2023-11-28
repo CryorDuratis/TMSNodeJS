@@ -4,12 +4,18 @@ const dotenv = require("dotenv")
 const cors = require("cors")
 const cookieParser = require("cookie-parser")
 
+// All controller API are imported here
+const { isAuthenticatedUser } = require("./functions/auth")
+const { loginDisplay, loginForm, logout, home, profile, editform } = require("./controllers/usercontroller")
+const { userMgmt, userMgmtCreateForm, userMgmtEditForm, userMgmtGroupForm } = require("./controllers/usermgmtcontroller")
+// const { } = require("../controllers/tmscontroller")
+
 // Express is initiated here
 const app = express()
 
 // Uncaught exception error shuts down server here
 process.on("uncaughtException", (err) => {
-  console.log(`Error: ${err.message}`)
+  console.log(`Error: ${err.stack}`)
   console.log("Shutting down the server due to uncaught exception.")
   process.exit(1)
 })
@@ -25,12 +31,6 @@ app.use(cors())
 app.use(bodyParser)
 app.use(cookieParser())
 
-// All controller API are imported here
-const { isAuthenticatedUser } = require("../middleware/auth")
-const { loginDisplay, loginForm, logout, home, profile, editform } = require("../controllers/usercontroller")
-const { admin, adminCreateForm, adminEditForm, adminGroupForm } = require("../controllers/usermgmtcontroller")
-// const { } = require("../controllers/tmscontroller")
-
 // Router is initialized here
 const router = express.Router()
 
@@ -40,10 +40,13 @@ router.route("/login").post(loginForm) // check login details, return success
 router.route("/logout").get(isAuthenticatedUser, logout) // check if user is logged in, set user as logged out, return success
 router.route("/profile").get(isAuthenticatedUser, profile) // check if user is logged in, retrieve user data
 router.route("/profile/edit").post(isAuthenticatedUser, editform) // check if user is logged in, modify user details, retrieve user data
-router.route("/usermgmt").get(isAuthenticatedUser, admin) // check if user is logged in, retrieve user list
-router.route("/usermgmt/create").post(isAuthenticatedUser, adminCreateForm) // loggedin ? submitform -> valid -> updated : login
-router.route("/usermgmt/edit").post(isAuthenticatedUser, adminEditForm) // loggedin ? submitform -> valid -> updated : login
-router.route("/usermgmt/group").post(isAuthenticatedUser, adminGroupForm) // loggedin ? submitform -> valid -> updated : login
+router.route("/usermgmt").get(isAuthenticatedUser, userMgmt) // check if user is logged in, retrieve user list
+router.route("/usermgmt/create").post(isAuthenticatedUser, userMgmtCreateForm) // loggedin ? submitform -> valid -> updated : login
+router.route("/usermgmt/edit").post(isAuthenticatedUser, userMgmtEditForm) // loggedin ? submitform -> valid -> updated : login
+router.route("/usermgmt/group").post(isAuthenticatedUser, userMgmtGroupForm) // loggedin ? submitform -> valid -> updated : login
+
+// use router
+app.use(router)
 
 // Route not found catch
 app.all("*", (req, res) => {
@@ -56,7 +59,17 @@ app.all("*", (req, res) => {
 // Error-handling middleware (defined after other routes and middleware)
 app.use((err, req, res, next) => {
   console.error(err.message)
-  res.status(500).json({ error: "Internal Server Error" })
+  if (err.name === "TokenExpiredError") {
+    return res.json({
+      authenticated: false,
+      error: "Your session has expired, please log in again",
+    })
+  } else {
+    console.log(err)
+    return res.json({
+      error: "Internal Server Error",
+    })
+  }
 })
 
 // Server started on port

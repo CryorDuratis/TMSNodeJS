@@ -4,18 +4,19 @@ const bcrypt = require("bcryptjs")
 // require app modules
 const { executeQuery } = require("../functions/db")
 const sendToken = require("../functions/JWToken")
-const Checkgroup = require("../functions/checkGroup")
+const { Checkgroup } = require("../functions/checkGroup")
+const catchAsyncErrors = require("../functions/catchAsyncErrors")
 
 // URL get /login
-exports.loginDisplay = Promise.resolve(async (req, res, next) => {
+exports.loginDisplay = catchAsyncErrors(async (req, res, next) => {
   res.json({
     success: true,
     message: "login works",
   })
-}).catch(next)
+})
 
 // URL post /login
-exports.loginForm = Promise.resolve(async (req, res, next) => {
+exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   const { username, password } = req.body
 
   // if empty login submission - should be handled client side
@@ -59,10 +60,10 @@ exports.loginForm = Promise.resolve(async (req, res, next) => {
   }
 
   sendToken(user, res)
-}).catch(next)
+})
 
 // URL get /logout, token will be emptied, then react side will check for token and redirect to login
-exports.logout = Promise.resolve(async (req, res, next) => {
+exports.logout = catchAsyncErrors(async (req, res, next) => {
   res.cookie("token", "none", {
     expires: new Date(Date.now()),
     httpOnly: true,
@@ -72,25 +73,26 @@ exports.logout = Promise.resolve(async (req, res, next) => {
     success: true,
     message: "Logged out successfully",
   })
-}).catch(next)
+})
 
 // URL get /
-exports.home = Promise.resolve(async (req, res, next) => {
+exports.home = catchAsyncErrors(async (req, res, next) => {
   // check group to display admin button
   const userMgmtGroups = "admin"
-  const userMgmt = Checkgroup(req.user, userMgmtGroups)
+  const userMgmt = await Checkgroup(req.user, userMgmtGroups)
+  console.log(userMgmt)
 
   res.status(200).json({
     success: true,
     userMgmt,
   })
-}).catch(next)
+})
 
 // URL get /profile
-exports.profile = Promise.resolve(async (req, res, next) => {
+exports.profile = catchAsyncErrors(async (req, res, next) => {
   // check group to display admin button
   const userMgmtGroups = "admin"
-  const userMgmt = Checkgroup(req.user, userMgmtGroups)
+  const userMgmt = await Checkgroup(req.user, userMgmtGroups)
 
   // on click, show edit profile component, get username and email to display
   var querystr = `SELECT email FROM users WHERE username = ?`
@@ -103,10 +105,10 @@ exports.profile = Promise.resolve(async (req, res, next) => {
     userData,
     userMgmt,
   })
-}).catch(next)
+})
 
 // URL post /profile/edit
-exports.editform = Promise.resolve(async (req, res, next) => {
+exports.editform = catchAsyncErrors(async (req, res, next) => {
   if (req.body.password) {
     // hash password
     const salt = await bcrypt.genSalt(10)
@@ -126,4 +128,4 @@ exports.editform = Promise.resolve(async (req, res, next) => {
     success: true,
     userData,
   })
-}).catch(next)
+})

@@ -3,12 +3,14 @@ const bcrypt = require("bcryptjs")
 
 // require app modules
 const { executeQuery } = require("../functions/db")
+const catchAsyncErrors = require("../functions/catchAsyncErrors")
+const { Checkgroup } = require("../functions/checkGroup")
 
 // URL get /usermgmt
-exports.userMgmt = Promise.resolve(async (req, res, next) => {
+exports.userMgmt = catchAsyncErrors(async (req, res, next) => {
   // check group to display page
   const userMgmtGroups = "admin"
-  const userMgmt = Checkgroup(req.user, userMgmtGroups)
+  const userMgmt = await Checkgroup(req.user, userMgmtGroups)
   if (!userMgmt) {
     return res.json({
       success: false,
@@ -33,13 +35,13 @@ exports.userMgmt = Promise.resolve(async (req, res, next) => {
     groupsData,
     userMgmt,
   })
-}).catch(next)
+})
 
 // URL post /usermgmt/edit
-exports.userMgmtEditForm = Promise.resolve(async (req, res, next) => {
+exports.userMgmtEditForm = catchAsyncErrors(async (req, res, next) => {
   // check group
   const userMgmtGroups = "admin"
-  const userMgmt = Checkgroup(req.user, userMgmtGroups)
+  const userMgmt = await Checkgroup(req.user, userMgmtGroups)
   if (!userMgmt) {
     return res.json({
       success: false,
@@ -76,13 +78,13 @@ exports.userMgmtEditForm = Promise.resolve(async (req, res, next) => {
     success: true,
     message: "user edited successfully",
   })
-}).catch(next)
+})
 
 // URL post /usermgmt/create
-exports.userMgmtCreateForm = Promise.resolve(async (req, res, next) => {
+exports.userMgmtCreateForm = catchAsyncErrors(async (req, res, next) => {
   // check group
   const userMgmtGroups = "admin"
-  const userMgmt = Checkgroup(req.user, userMgmtGroups)
+  const userMgmt = await Checkgroup(req.user, userMgmtGroups)
   if (!userMgmt) {
     return res.json({
       success: false,
@@ -136,13 +138,13 @@ exports.userMgmtCreateForm = Promise.resolve(async (req, res, next) => {
     success: true,
     message: "user created successfully",
   })
-}).catch(next)
+})
 
 // URL post /usermgmt/group
-exports.userMgmtGroupForm = Promise.resolve(async (req, res, next) => {
+exports.userMgmtGroupForm = catchAsyncErrors(async (req, res, next) => {
   // check group
   const userMgmtGroups = "admin"
-  const userMgmt = Checkgroup(req.user, userMgmtGroups)
+  const userMgmt = await Checkgroup(req.user, userMgmtGroups)
   if (!userMgmt) {
     return res.json({
       success: false,
@@ -180,4 +182,4 @@ exports.userMgmtGroupForm = Promise.resolve(async (req, res, next) => {
     success: true,
     message: "group created successfully",
   })
-}).catch(next)
+})

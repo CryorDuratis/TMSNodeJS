@@ -4,10 +4,11 @@ const jwt = require("jsonwebtoken")
 // require app modules
 const { executeQuery } = require("./db")
 const dotenv = require("dotenv")
+const catchAsyncErrors = require("./catchAsyncErrors")
 dotenv.config({ path: "./config/config.env" })
 
 // check loggedin
-exports.isAuthenticatedUser = Promise.resolve(async (req, res, next) => {
+exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   let token
   // splits username and token
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
@@ -53,17 +54,4 @@ exports.isAuthenticatedUser = Promise.resolve(async (req, res, next) => {
   }
 
   next()
-}).catch((error) => {
-  if (error.name === "TokenExpiredError") {
-    return res.json({
-      authenticated: false,
-      message: "Your session has expired, please log in again",
-    })
-  } else {
-    console.log(error)
-    return res.json({
-      authenticated: false,
-      message: "Unexpected error encountered, please log in again",
-    })
-  }
 })
