@@ -2,11 +2,7 @@
 const { executeQuery } = require("../config/db")
 const catchAsyncErrors = require("../middleware/catchAsyncErrors")
 
-exports.Checkgroup = catchAsyncErrors(async (userid, groupname) => {
-  // select * from users where username = 'username' and groups like 'group'
-  // if result.length > 0, return true
-  // else return false
-  // check user role to determine if admin button appears
+const Checkgroup = catchAsyncErrors(async (userid, groupname) => {
   var querystr = `SELECT role FROM users WHERE username = ? AND role LIKE ?`
   const values = [userid, groupname]
 
@@ -14,4 +10,11 @@ exports.Checkgroup = catchAsyncErrors(async (userid, groupname) => {
   // return result
   console.log("checkgroup returns:", result.length > 0)
   return result.length > 0
+})
+
+exports.Checkgroup = catchAsyncErrors(async (req, res) => {
+  result = await Checkgroup(req.user.username, req.body.group)
+  return res.json({
+    success: result
+  })
 })

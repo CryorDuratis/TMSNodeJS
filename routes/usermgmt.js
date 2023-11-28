@@ -4,6 +4,7 @@ const express = require("express")
 // All app modules are imported here
 const { loginDisplay, loginForm, logout, profile, editform, admin, adminCreateForm, adminEditForm, adminGroupForm } = require("../controllers/usercontroller")
 const { isAuthenticatedUser } = require("../middleware/auth")
+const { Checkgroup } = require("../controllers/checkGroup")
 
 // const { isAuthenticatedUser, authorizeRoles } = require('../middleware/auth.js')
 
@@ -11,15 +12,16 @@ const { isAuthenticatedUser } = require("../middleware/auth")
 const router = express.Router()
 
 // Routes are defined here
-router.route("/login").get(isAuthenticatedUser, loginDisplay) // loggedin(token) ? redirect home : login
-router.route("/login").post(loginForm) // valid(res token) ? redirected url || home : res error -> login
-router.route("/logout").get(isAuthenticatedUser, logout) // loggedin? logout : login
-router.route("/profile").get(isAuthenticatedUser, profile) // loggedin? display edit : login
-router.route("/profile/edit").post(isAuthenticatedUser, editform) // loggedin? submit form -> valid(password rule) -> updated : login
-router.route("/admin").get(isAuthenticatedUser, admin) // loggedin ? admin : redirect login
+router.route("/login").get(isAuthenticatedUser, loginDisplay) // check if user is logged in
+router.route("/login").post(loginForm) // check login details, return success
+router.route("/logout").get(isAuthenticatedUser, logout) // check if user is logged in, set user as logged out, return success
+router.route("/profile").get(isAuthenticatedUser, profile) // check if user is logged in, retrieve user data
+router.route("/profile/edit").post(isAuthenticatedUser, editform) // check if user is logged in, modify user details, retrieve user data
+router.route("/admin").get(isAuthenticatedUser, admin) // check if user is logged in, retrieve user list
 router.route("/admin/create").post(isAuthenticatedUser, adminCreateForm) // loggedin ? submitform -> valid -> updated : login
 router.route("/admin/edit").post(isAuthenticatedUser, adminEditForm) // loggedin ? submitform -> valid -> updated : login
 router.route("/admin/group").post(isAuthenticatedUser, adminGroupForm) // loggedin ? submitform -> valid -> updated : login
+router.route("/checkgroup").post(Checkgroup) // loggedin ? submitform -> valid -> updated : login
 
 // Router is exported
 module.exports = router

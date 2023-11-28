@@ -4,7 +4,6 @@ const bcrypt = require("bcryptjs")
 // require app modules
 const { executeQuery } = require("../config/db")
 const sendToken = require("../util/JWToken")
-const { Checkgroup } = require("../util/checkGroup")
 const { hashPass } = require("../util/hashPass")
 const ErrorHandler = require("../util/errorHandler")
 const catchAsyncErrors = require("../middleware/catchAsyncErrors")
@@ -108,11 +107,6 @@ exports.editform = catchAsyncErrors(async (req, res, next) => {
 
 // URL get /admin
 exports.admin = catchAsyncErrors(async (req, res, next) => {
-  // check if authorized
-  const authorized = await Checkgroup(req.user, "%admin%")
-  if (!authorized) {
-    return next(new ErrorHandler("You are not authorized to view this page, please check with your team if you think this is a mistake", 403))
-  }
   // get all user info
   var querystr = `SELECT * FROM users`
   var values = []
@@ -132,11 +126,6 @@ exports.admin = catchAsyncErrors(async (req, res, next) => {
 
 // URL post /admin/edit
 exports.adminEditForm = catchAsyncErrors(async (req, res, next) => {
-  // check if authorized
-  const authorized = await Checkgroup(req.user, "%admin%")
-  if (!authorized) {
-    return next(new ErrorHandler("You are not authorized to view this page, please check with your team if you think this is a mistake", 403))
-  }
   if (req.body.password) {
     // hash password
     req.body.password = await hashPass(req.body.password)
@@ -169,12 +158,6 @@ exports.adminEditForm = catchAsyncErrors(async (req, res, next) => {
 
 // URL post /admin/create
 exports.adminCreateForm = catchAsyncErrors(async (req, res, next) => {
-  // check if authorized
-  const authorized = await Checkgroup(req.user, "%admin%")
-  if (!authorized) {
-    return next(new ErrorHandler("You are not authorized to view this page, please check with your team if you think this is a mistake", 403))
-  }
-
   // Validate that required fields are present
   if (!req.body.password || !req.body.username) {
     return next(new ErrorHandler("Please enter all required fields", 400))
@@ -215,11 +198,6 @@ exports.adminCreateForm = catchAsyncErrors(async (req, res, next) => {
 
 // URL post /admin/group
 exports.adminGroupForm = catchAsyncErrors(async (req, res, next) => {
-  // check if authorized
-  const authorized = await Checkgroup(req.user, "%admin%")
-  if (!authorized) {
-    return next(new ErrorHandler("You are not authorized to view this page, please check with your team if you think this is a mistake", 403))
-  }
   // Validate that required fields are present
   if (!req.body.role) {
     return next(new ErrorHandler("Please enter all required fields", 400))
