@@ -10,4 +10,9 @@ exports.taskinfo = Promise.resolve(async (req, res, next) => {
   // given username, return if user groups include groups with permissions: Checkgroup(userid, groupname)
   // res.json permissions: view || edit
   // get task info
+}).catch((error) => {
+  console.error("Async error:", error.message)
+  return res.json({
+    error: error.name,
+  })
 })
