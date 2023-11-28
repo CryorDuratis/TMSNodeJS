@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs")
 // require app modules
 const { executeQuery } = require("../config/db")
 const sendToken = require("../util/JWToken")
-const { Checkgroup } = require("../util/Checkgroup")
+const { Checkgroup } = require("../util/checkGroup")
 const { hashPass } = require("../util/hashPass")
 const ErrorHandler = require("../util/errorHandler")
 const catchAsyncErrors = require("../middleware/catchAsyncErrors")
