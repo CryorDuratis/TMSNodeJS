@@ -9,13 +9,13 @@ dotenv.config({ path: "./config/config.env" })
 const sendToken = (user, res) => {
   // creates token based on user that logged in
   const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRY,
+    expiresIn: process.env.JWT_EXPIRY
   })
 
   // sets cookie options
   const options = {
     expires: new Date(Date.now() + process.env.COOKIE_EXPIRY * 24 * 60 * 60 * 1000), // expiry date = current date + duration in days
-    httpOnly: true,
+    httpOnly: true
   }
 
   // cookie secure for production environment
@@ -25,9 +25,9 @@ const sendToken = (user, res) => {
 
   // send cookie back with token
   res.cookie("token", token, options).json({
-    success: true,
-    token,
-    user,
+    loggedin: true,
+    username: user.username,
+    usergroups: user.role.split(",")
   })
 }
 

@@ -7,28 +7,20 @@ const sendToken = require("../functions/JWToken")
 const { Checkgroup } = require("../functions/checkGroup")
 const catchAsyncErrors = require("../functions/catchAsyncErrors")
 
-// URL get /login
-exports.loginDisplay = catchAsyncErrors(async (req, res, next) => {
-  res.json({
-    success: true,
-    message: "login works",
-  })
-})
-
 // URL post /login
 exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   const { username, password } = req.body
 
   // if empty login submission - should be handled client side
-  if (!req.body.username || !req.body.password) {
+  if (!username || !password) {
     return res.json({
-      valid: false,
-      message: "Please enter Login Details",
+      loggedin: false,
+      message: "Please enter Login Details"
     })
   }
 
-  // sql query for matching user
-  var querystr = `SELECT * FROM users WHERE username = ?`
+  // sql query for matching user that is active
+  var querystr = `SELECT * FROM users WHERE username = ? AND isactive = 1`
   const values = [username]
 
   const result = await executeQuery(querystr, values)
@@ -36,8 +28,8 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   // if no matching user found
   if (result.length < 1) {
     return res.json({
-      valid: false,
-      message: "Invalid Login Details, please try again",
+      loggedin: false,
+      message: "Invalid login details, please try again"
     })
   }
 
@@ -49,67 +41,47 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   const isMatched = await bcrypt.compare(password, user.password)
   console.log(isMatched)
 
-  // checks if disabled
-  const isActive = user.isactive
-
-  if (!isActive || !isMatched) {
+  if (!isMatched) {
     return res.json({
-      valid: false,
-      message: "Invalid Login Details, please try again",
+      loggedin: false,
+      message: "Invalid login details, please try again"
     })
   }
 
   sendToken(user, res)
 })
 
-// URL get /logout, token will be emptied, then react side will check for token and redirect to login
+// URL post /logout, token will be emptied, then react side will check for token and redirect to login
 exports.logout = catchAsyncErrors(async (req, res, next) => {
-  res.cookie("token", "none", {
-    expires: new Date(Date.now()),
-    httpOnly: true,
-  })
-
-  res.json({
-    success: true,
-    message: "Logged out successfully",
-  })
+  res
+    .cookie("token", "none", {
+      expires: new Date(Date.now()),
+      httpOnly: true
+    })
+    .json({
+      loggedin: false
+    })
 })
 
-// URL get /
-exports.home = catchAsyncErrors(async (req, res, next) => {
-  // check group to display admin button
-  const userMgmtGroups = "admin"
-  const userMgmt = await Checkgroup(req.user, userMgmtGroups)
-  console.log(userMgmt)
-
-  res.status(200).json({
-    success: true,
-    userMgmt,
-  })
-})
-
-// URL get /profile
+// URL post /user
 exports.profile = catchAsyncErrors(async (req, res, next) => {
-  // check group to display admin button
-  const userMgmtGroups = "admin"
-  const userMgmt = await Checkgroup(req.user, userMgmtGroups)
+  const { username } = req.body
 
-  // on click, show edit profile component, get username and email to display
   var querystr = `SELECT email FROM users WHERE username = ?`
-  const values = [req.user]
+  const values = [username]
 
-  const userData = await executeQuery(querystr, values)
+  const email = await executeQuery(querystr, values)
   // return result
-  res.status(200).json({
-    success: true,
-    userData,
-    userMgmt,
+  res.json({
+    email
   })
 })
 
-// URL post /profile/edit
-exports.editform = catchAsyncErrors(async (req, res, next) => {
+// URL post /user/edit
+exports.editUser = catchAsyncErrors(async (req, res, next) => {
   if (req.body.password) {
+    // validate password
+
     // hash password
     const salt = await bcrypt.genSalt(10)
     req.body.password = await bcrypt.hash(req.body.password, salt)
@@ -117,15 +89,112 @@ exports.editform = catchAsyncErrors(async (req, res, next) => {
   }
   const fields = Object.keys(req.body)
   const values = Object.values(req.body)
-  const setClause = fields.map((field) => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  // converts form values to db appropriate values
+  values = values.map(value => (value === "role" ? value.join(",") : value))
+
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
-  values.push(req.user) // ensures that username is bounded by ''
+  values.push(req.body.user) // ensures that username is bounded by ''
 
   console.log(querystr)
   const userData = await executeQuery(querystr, values) // replace all the ? with the form values
   // return result
-  res.status(200).json({
-    success: true,
-    userData,
+  res.end()
+})
+
+// URL post /user/getall
+exports.allUsers = catchAsyncErrors(async (req, res, next) => {
+  // get all user info
+  var querystr = `SELECT * FROM users`
+  var values = []
+
+  const usersData = await executeQuery(querystr, values)
+
+  // return result
+  res.json({
+    usersData
   })
+})
+
+// URL post /user/create
+exports.createUser = catchAsyncErrors(async (req, res, next) => {
+  const { username, password, email = null, role = null, isactive = 1 } = req.body
+  // Validate that required fields are present
+  if (!username || !password) {
+    return res.json({
+      error: "required",
+      message: "Please enter all required values"
+    })
+  }
+
+  // check if username is duplicate
+  var querystr = `SELECT username FROM users WHERE username = ?`
+  const values = [username]
+
+  const result = await executeQuery(querystr, values)
+  // return result
+  if (result.length > 0)
+    return res.json({
+      error: "conflict",
+      message: "This username already exists, please enter a different username"
+    })
+
+  // validate password
+
+  // hash password
+  const salt = await bcrypt.genSalt(10)
+  req.body.password = await bcrypt.hash(req.body.password, salt)
+  console.log("hashed password is: ", req.body.password)
+
+  // insert
+  querystr = `INSERT INTO users VALUES (?,?,?,?,?)`
+  values = [username, password, email, role, isactive]
+
+  result = await executeQuery(querystr, values)
+  // return result
+  res.end()
+})
+
+// URL post /group/getall
+exports.allGroups = catchAsyncErrors(async (req, res, next) => {
+  // get all group info
+  var querystr = `SELECT * FROM grouplist`
+  var values = []
+
+  const groupsData = await executeQuery(querystr, values)
+
+  // return result
+  res.json({
+    groupsData
+  })
+})
+
+// URL post /group/create
+exports.createGroup = catchAsyncErrors(async (req, res, next) => {
+  const { group } = req.body
+  // Validate that required fields are present
+  if (!group) {
+    return res.json({
+      error: "required",
+      message: "Group name is required"
+    })
+  }
+  // check if group is duplicate
+  var querystr = `SELECT * FROM grouplist WHERE groupname = ?`
+  const values = [group]
+
+  const result = await executeQuery(querystr, values)
+  // return result
+  if (result.length > 0)
+    return res.json({
+      error: "conflict",
+      message: "This group already exists, please enter a different group name"
+    })
+
+  // create new group
+  querystr = `INSERT INTO grouplist VALUES (?)`
+
+  result = await executeQuery(querystr, values)
+  // return result
+  res.end()
 })

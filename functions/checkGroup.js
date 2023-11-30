@@ -12,4 +12,9 @@ const Checkgroup = catchAsyncErrors(async (userid, groupname) => {
   return result.length > 0
 })
 
-module.exports = { Checkgroup }
+exports.Checkgroup = catchAsyncErrors(async (req, res, next) => {
+  const authorized = await Checkgroup(req.body.username, req.body.usergroup)
+  return res.json({
+    usergroup: authorized
+  })
+})

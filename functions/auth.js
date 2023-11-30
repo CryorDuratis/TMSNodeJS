@@ -7,7 +7,7 @@ const dotenv = require("dotenv")
 const catchAsyncErrors = require("./catchAsyncErrors")
 dotenv.config({ path: "./config/config.env" })
 
-// check loggedin
+// post /login
 exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   let token
   // splits username and token
@@ -17,27 +17,26 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   // if token doesnt exist
   if (!token) {
     return res.json({
-      authenticated: false,
+      loggedin: false,
+      message: "Please log in"
     })
   }
 
-  // passes down loggedin user username
+  // gets loggedin user username
   const payload = jwt.verify(token, process.env.JWT_SECRET)
-  console.log(payload)
-  req.user = payload.username
-  console.log("current username:", req.user)
+  console.log("current username:", payload.username)
 
   // sql query for user info
   var querystr = `SELECT * FROM users WHERE username = ?`
-  const values = [req.user]
+  const values = [payload.username]
 
   const result = await executeQuery(querystr, values)
 
   // if no matching user found
   if (result.length < 1) {
     return res.json({
-      authenticated: false,
-      message: "User account has been modified, please log in again",
+      loggedin: false,
+      message: "User account has been modified, please log in again"
     })
   }
 
@@ -48,10 +47,16 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
 
   if (!isActive) {
     return res.json({
-      authenticated: false,
-      message: "You are not authorized to view this page",
+      loggedin: false,
+      message: "You are not authorized to view this page"
     })
   }
 
-  next()
+  const usergroups = user.role.split(",")
+
+  return res.json({
+    loggedin: true,
+    username: user.username,
+    usergroups
+  })
 })
