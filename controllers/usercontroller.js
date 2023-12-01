@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs")
 // require app modules
 const { executeQuery } = require("../functions/db")
 const sendToken = require("../functions/JWToken")
-const { Checkgroup } = require("../functions/checkGroup")
+const { Checkgroup } = require("./checkGroup")
 const catchAsyncErrors = require("../functions/catchAsyncErrors")
 
 // URL post /login
@@ -89,6 +89,36 @@ exports.editUser = catchAsyncErrors(async (req, res, next) => {
   }
   const fields = Object.keys(req.body)
   const values = Object.values(req.body)
+  const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  // converts form values to db appropriate values
+  values = values.map(value => (value === "role" ? value.join(",") : value))
+
+  var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
+  values.push(req.body.user) // ensures that username is bounded by ''
+
+  console.log(querystr)
+  const userData = await executeQuery(querystr, values) // replace all the ? with the form values
+  // return result
+  res.end()
+})
+// URL post /user/editself
+exports.editSelf = catchAsyncErrors(async (req, res, next) => {
+  if (req.body.password) {
+    // validate password
+
+    // hash password
+    const salt = await bcrypt.genSalt(10)
+    req.body.password = await bcrypt.hash(req.body.password, salt)
+    console.log("hashed password is: ", req.body.password)
+  }
+  const fields = Object.keys(req.body)
+  if (fields.filter(el => el !== "email" && el !== "password").length > 0) {
+    res.json({
+      error: "Internal Server Error"
+    })
+  }
+  const values = Object.values(req.body)
+
   const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
   // converts form values to db appropriate values
   values = values.map(value => (value === "role" ? value.join(",") : value))

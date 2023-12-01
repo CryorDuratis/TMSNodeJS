@@ -5,9 +5,9 @@ const cors = require("cors")
 const cookieParser = require("cookie-parser")
 
 // All controller API are imported here
-const { isAuthenticatedUser } = require("./functions/auth")
-const { loginForm, logout, profile, createUser, editUser, allUsers, allGroups, createGroup } = require("./controllers/usercontroller")
-const { Checkgroup } = require("./functions/checkGroup")
+const { isAuthenticatedUser } = require("./controllers/auth")
+const { loginForm, logout, profile, createUser, editUser, allUsers, allGroups, createGroup, editSelf } = require("./controllers/usercontroller")
+const { Checkgroup } = require("./controllers/checkGroup")
 
 // Express is initiated here
 const app = express()
@@ -34,8 +34,8 @@ app.use(cookieParser())
 const router = express.Router()
 
 // Authentication and Authorization routes
-router.route("/login").post(isAuthenticatedUser) // post, send loggedin username usergroups
-router.route("/login/submit").post(loginForm) // post username password, send cookie-token loggedin username
+router.route("/login/check").post(isAuthenticatedUser) // post, send loggedin username usergroups
+router.route("/login").post(loginForm) // post username password, send cookie-token loggedin username
 router.route("/logout").post(logout) // post, send cookie-token loggedin
 
 // Check permit
@@ -45,6 +45,7 @@ router.route("/checkgroup").post(Checkgroup) // post username usergroup, send us
 router.route("/user").post(profile) // post username, send email
 router.route("/user/create").post(createUser) // post user *data, send
 router.route("/user/edit").post(editUser) // post userdata, send
+router.route("/user/editself").post(editSelf) // post userdata, send
 router.route("/user/getall").post(allUsers) // post, send *users
 router.route("/group/getall").post(allGroups) // post, send *groups
 router.route("/group/create").post(createGroup) // post group, send

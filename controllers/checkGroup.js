@@ -1,6 +1,6 @@
 // require app modules
-const catchAsyncErrors = require("./catchAsyncErrors")
-const { executeQuery } = require("./db")
+const catchAsyncErrors = require("../functions/catchAsyncErrors")
+const { executeQuery } = require("../functions/db")
 
 const Checkgroup = catchAsyncErrors(async (userid, groupname) => {
   var querystr = `SELECT role FROM users WHERE username = ? AND role LIKE ?`

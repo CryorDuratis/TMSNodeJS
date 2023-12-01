@@ -2,9 +2,9 @@
 const jwt = require("jsonwebtoken")
 
 // require app modules
-const { executeQuery } = require("./db")
+const { executeQuery } = require("../functions/db")
 const dotenv = require("dotenv")
-const catchAsyncErrors = require("./catchAsyncErrors")
+const catchAsyncErrors = require("../functions/catchAsyncErrors")
 dotenv.config({ path: "./config/config.env" })
 
 // post /login
