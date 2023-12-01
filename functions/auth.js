@@ -27,7 +27,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   console.log("current username:", payload.username)
 
   // sql query for user info
-  var querystr = `SELECT * FROM users WHERE username = ?`
+  var querystr = `SELECT * FROM users WHERE username = ? and isactive = 1`
   const values = [payload.username]
 
   const result = await executeQuery(querystr, values)
@@ -36,22 +36,11 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   if (result.length < 1) {
     return res.json({
       loggedin: false,
-      message: "User account has been modified, please log in again"
-    })
-  }
-
-  const user = result[0]
-
-  // checks if disabled
-  const isActive = user.isactive
-
-  if (!isActive) {
-    return res.json({
-      loggedin: false,
       message: "You are not authorized to view this page"
     })
   }
 
+  const user = result[0]
   const usergroups = user.role.split(",")
 
   return res.json({

@@ -6,6 +6,8 @@ const cookieParser = require("cookie-parser")
 
 // All controller API are imported here
 const { isAuthenticatedUser } = require("./functions/auth")
+const { loginForm, logout, profile, createUser, editUser, allUsers, allGroups, createGroup } = require("./controllers/usercontroller")
+const { Checkgroup } = require("./functions/checkGroup")
 
 // Express is initiated here
 const app = express()
@@ -32,7 +34,7 @@ app.use(cookieParser())
 const router = express.Router()
 
 // Authentication and Authorization routes
-router.route("/login").post(isAuthenticatedUser) // post cookie-token, send loggedin username usergroups
+router.route("/login").post(isAuthenticatedUser) // post, send loggedin username usergroups
 router.route("/login/submit").post(loginForm) // post username password, send cookie-token loggedin username
 router.route("/logout").post(logout) // post, send cookie-token loggedin
 
