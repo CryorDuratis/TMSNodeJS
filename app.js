@@ -35,8 +35,8 @@ const router = express.Router()
 
 // Authentication and Authorization routes
 router.route("/login/check").post(isAuthenticatedUser) // post, send loggedin username usergroups
-router.route("/login").post(loginForm) // post username password, send cookie-token loggedin username
-router.route("/logout").post(logout) // post, send cookie-token loggedin
+router.route("/login").post(loginForm) // post username password, send cookie-token success username
+router.route("/logout").post(logout) // post, send cookie-token
 
 // Check permit
 router.route("/checkgroup").post(Checkgroup) // post username usergroup, send usergroup(boolean)

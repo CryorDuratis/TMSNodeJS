@@ -14,8 +14,8 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   // if empty login submission - should be handled client side
   if (!username || !password) {
     return res.json({
-      loggedin: false,
-      message: "Please enter Login Details"
+      success: false,
+      message: "required"
     })
   }
 
@@ -28,8 +28,8 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   // if no matching user found
   if (result.length < 1) {
     return res.json({
-      loggedin: false,
-      message: "Invalid login details, please try again"
+      success: false,
+      message: "invalid"
     })
   }
 
@@ -43,8 +43,8 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
 
   if (!isMatched) {
     return res.json({
-      loggedin: false,
-      message: "Invalid login details, please try again"
+      success: false,
+      message: "invalid"
     })
   }
 
@@ -53,14 +53,10 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
 
 // URL post /logout, token will be emptied, then react side will check for token and redirect to login
 exports.logout = catchAsyncErrors(async (req, res, next) => {
-  res
-    .cookie("token", "none", {
-      expires: new Date(Date.now()),
-      httpOnly: true
-    })
-    .json({
-      loggedin: false
-    })
+  res.cookie("token", "none", {
+    expires: new Date(Date.now()),
+    httpOnly: true
+  })
 })
 
 // URL post /user

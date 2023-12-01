@@ -23,9 +23,10 @@ const sendToken = (user, res) => {
     options.secure = true
   }
 
-  // send cookie back with token
-  res.cookie("token", token, options).json({
-    loggedin: true,
+  // send body with token, use cookie.set in frontend to store
+  res.json({
+    success: true,
+    token,
     username: user.username,
     usergroups: user.role.split(",")
   })
