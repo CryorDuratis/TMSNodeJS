@@ -13,8 +13,8 @@ const Checkgroup = catchAsyncErrors(async (userid, groupname) => {
 })
 
 exports.Checkgroup = catchAsyncErrors(async (req, res, next) => {
-  const authorized = await Checkgroup(req.body.username, req.body.usergroup)
+  const authorized = await Checkgroup(req.body.userid, req.body.groupname)
   return res.json({
-    usergroup: authorized
+    authorized,
   })
 })
