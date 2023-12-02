@@ -53,10 +53,7 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
 
 // URL post /logout, token will be emptied, then react side will check for token and redirect to login
 exports.logout = catchAsyncErrors(async (req, res, next) => {
-  res.clearCookie("token", {
-    httponly: true,
-    sameSite: false,
-  })
+  res.clearCookie("token").end()
 })
 
 // URL post /user
