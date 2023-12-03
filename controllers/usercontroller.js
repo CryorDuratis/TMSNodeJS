@@ -128,11 +128,10 @@ exports.editSelf = catchAsyncErrors(async (req, res, next) => {
 // URL post /user/getall
 exports.allUsers = catchAsyncErrors(async (req, res, next) => {
   // get all user info
-  var querystr = "SELECT `username`,`email`,`role`,`isactive` FROM users"
+  var querystr = "SELECT `username`,`email`,`role`,`isactive` FROM users ORDER BY `username`"
   var values = []
 
   const usersData = await executeQuery(querystr, values)
-  console.log("usersdata is ", usersData)
 
   // return result
   res.json({
