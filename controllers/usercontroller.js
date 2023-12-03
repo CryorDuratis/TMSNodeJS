@@ -128,10 +128,11 @@ exports.editSelf = catchAsyncErrors(async (req, res, next) => {
 // URL post /user/getall
 exports.allUsers = catchAsyncErrors(async (req, res, next) => {
   // get all user info
-  var querystr = `SELECT * FROM users`
+  var querystr = "SELECT `username`,`email`,`role`,`isactive` FROM users"
   var values = []
 
   const usersData = await executeQuery(querystr, values)
+  console.log("usersdata is ", usersData)
 
   // return result
   res.json({
@@ -152,9 +153,9 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
 
   // check if username is duplicate
   var querystr = `SELECT username FROM users WHERE username = ?`
-  const values = [username]
+  var values = [username]
 
-  const result = await executeQuery(querystr, values)
+  var result = await executeQuery(querystr, values)
   // return result
   if (result.length > 0)
     return res.json({
