@@ -15,7 +15,7 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (!username || !password) {
     return res.json({
       success: false,
-      message: "required",
+      message: "required"
     })
   }
 
@@ -29,7 +29,7 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (result.length < 1) {
     return res.json({
       success: false,
-      message: "invalid",
+      message: "invalid"
     })
   }
 
@@ -44,7 +44,7 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (!isMatched) {
     return res.json({
       success: false,
-      message: "invalid",
+      message: "invalid"
     })
   }
 
@@ -66,7 +66,7 @@ exports.profile = catchAsyncErrors(async (req, res, next) => {
   const email = await executeQuery(querystr, values)
   // return result
   res.json({
-    email,
+    email
   })
 })
 
@@ -82,9 +82,9 @@ exports.editUser = catchAsyncErrors(async (req, res, next) => {
   }
   const fields = Object.keys(req.body)
   const values = Object.values(req.body)
-  const setClause = fields.map((field) => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
   // converts form values to db appropriate values
-  values = values.map((value) => (value === "role" ? value.join(",") : value))
+  values = values.map(value => (value === "role" ? value.join(",") : value))
 
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
   values.push(req.body.user) // ensures that username is bounded by ''
@@ -105,16 +105,16 @@ exports.editSelf = catchAsyncErrors(async (req, res, next) => {
     console.log("hashed password is: ", req.body.password)
   }
   const fields = Object.keys(req.body)
-  if (fields.filter((el) => el !== "email" && el !== "password").length > 0) {
+  if (fields.filter(el => el !== "email" && el !== "password").length > 0) {
     res.json({
-      error: "Internal Server Error",
+      error: "Internal Server Error"
     })
   }
   const values = Object.values(req.body)
 
-  const setClause = fields.map((field) => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
   // converts form values to db appropriate values
-  values = values.map((value) => (value === "role" ? value.join(",") : value))
+  values = values.map(value => (value === "role" ? value.join(",") : value))
 
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
   values.push(req.body.user) // ensures that username is bounded by ''
@@ -135,18 +135,18 @@ exports.allUsers = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    usersData,
+    usersData
   })
 })
 
 // URL post /user/create
 exports.createUser = catchAsyncErrors(async (req, res, next) => {
-  const { username, password, email = null, role = null, isactive = 1 } = req.body
+  const { username, password, email = null, role = null } = req.body
   // Validate that required fields are present
   if (!username || !password) {
     return res.json({
-      error: "required",
-      message: "Please enter all required values",
+      message: "required",
+      success: false
     })
   }
 
@@ -158,8 +158,8 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
   // return result
   if (result.length > 0)
     return res.json({
-      error: "conflict",
-      message: "This username already exists, please enter a different username",
+      message: "conflict",
+      success: false
     })
 
   // validate password
@@ -170,8 +170,8 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
   console.log("hashed password is: ", req.body.password)
 
   // insert
-  querystr = `INSERT INTO users VALUES (?,?,?,?,?)`
-  values = [username, password, email, role, isactive]
+  querystr = `INSERT INTO users VALUES (?,?,?,?,1)`
+  values = [username, password, email, role]
 
   result = await executeQuery(querystr, values)
   // return result
@@ -188,7 +188,7 @@ exports.allGroups = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    groupsData,
+    groupsData
   })
 })
 
@@ -199,7 +199,7 @@ exports.createGroup = catchAsyncErrors(async (req, res, next) => {
   if (!group) {
     return res.json({
       error: "required",
-      message: "Group name is required",
+      message: "Group name is required"
     })
   }
   // check if group is duplicate
@@ -211,7 +211,7 @@ exports.createGroup = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       error: "conflict",
-      message: "This group already exists, please enter a different group name",
+      message: "This group already exists, please enter a different group name"
     })
 
   // create new group

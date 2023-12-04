@@ -13,7 +13,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   if (!req.cookies.token) {
     return res.json({
       loggedin: false,
-      message: "Please log in",
+      message: "Please log in"
     })
   }
   // gets token from httponly request cookie header
@@ -33,7 +33,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   if (result.length < 1) {
     return res.json({
       loggedin: false,
-      message: "You are not authorized to view this page",
+      message: "Invalid token"
     })
   }
 
@@ -43,6 +43,6 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   return res.json({
     loggedin: true,
     username: user.username,
-    usergroups,
+    usergroups
   })
 })
