@@ -42,7 +42,6 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
 
   return res.json({
     loggedin: true,
-    username: user.username,
-    usergroups
+    username: user.username
   })
 })
