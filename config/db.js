@@ -1,7 +1,7 @@
 // require node modules
 const mysql = require("mysql2")
 const dotenv = require("dotenv")
-const catchAsyncErrors = require("./catchAsyncErrors")
+const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 
 // dotenv set up
 dotenv.config({ path: "./config/config.env" }) // path is from root directory, not this parent folder

@@ -9,7 +9,7 @@ dotenv.config({ path: "./config/config.env" })
 const sendToken = (user, res) => {
   // creates token based on user that logged in
   const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRY
+    expiresIn: process.env.JWT_EXPIRY,
   })
 
   // send body with token, use cookie.set in frontend to store
@@ -17,7 +17,6 @@ const sendToken = (user, res) => {
     success: true,
     token,
     username: user.username,
-    usergroups: user.role.split(",")
   })
 }
 

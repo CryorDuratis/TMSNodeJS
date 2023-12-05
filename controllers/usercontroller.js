@@ -2,10 +2,10 @@
 const bcrypt = require("bcryptjs")
 
 // require app modules
-const { executeQuery } = require("../functions/db")
-const sendToken = require("../functions/JWToken")
+const { executeQuery } = require("../config/db")
+const sendToken = require("../authentication/JWToken")
 const { Checkgroup } = require("./checkGroup")
-const catchAsyncErrors = require("../functions/catchAsyncErrors")
+const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 
 // URL post /login
 exports.loginForm = catchAsyncErrors(async (req, res, next) => {
@@ -15,7 +15,7 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (!username || !password) {
     return res.json({
       success: false,
-      message: "required"
+      message: "required",
     })
   }
 
@@ -29,7 +29,7 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (result.length < 1) {
     return res.json({
       success: false,
-      message: "invalid"
+      message: "invalid",
     })
   }
 
@@ -44,21 +44,21 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (!isMatched) {
     return res.json({
       success: false,
-      message: "invalid"
+      message: "invalid",
     })
   }
 
   sendToken(user, res)
 })
 
-// URL post /logout, token will be emptied, then react side will check for token and redirect to login
+// URL post /logout, token will be emptied, then react side will redirect to login
 exports.logout = catchAsyncErrors(async (req, res, next) => {
   res.clearCookie("token").end()
 })
 
 // URL post /user
 exports.profile = catchAsyncErrors(async (req, res, next) => {
-  const { username } = req.body
+  const username = req.user
 
   var querystr = `SELECT email FROM users WHERE username = ?`
   const values = [username]
@@ -66,7 +66,7 @@ exports.profile = catchAsyncErrors(async (req, res, next) => {
   const email = await executeQuery(querystr, values)
   // return result
   res.json({
-    email
+    email,
   })
 })
 
@@ -74,6 +74,14 @@ exports.profile = catchAsyncErrors(async (req, res, next) => {
 exports.editUser = catchAsyncErrors(async (req, res, next) => {
   if (req.body.password) {
     // validate password
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/
+
+    if (!passwordRegex.test(req.body.password)) {
+      return res.json({
+        success: false,
+        message: "password",
+      })
+    }
 
     // hash password
     const salt = await bcrypt.genSalt(10)
@@ -82,9 +90,9 @@ exports.editUser = catchAsyncErrors(async (req, res, next) => {
   }
   const fields = Object.keys(req.body)
   const values = Object.values(req.body)
-  const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  const setClause = fields.map((field) => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
   // converts form values to db appropriate values
-  values = values.map(value => (value === "role" ? value.join(",") : value))
+  values = values.map((value) => (value === "role" ? value.join(",") : value))
 
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
   values.push(req.body.user) // ensures that username is bounded by ''
@@ -94,10 +102,19 @@ exports.editUser = catchAsyncErrors(async (req, res, next) => {
   // return result
   res.end()
 })
+
 // URL post /user/editself
 exports.editSelf = catchAsyncErrors(async (req, res, next) => {
   if (req.body.password) {
     // validate password
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/
+
+    if (!passwordRegex.test(req.body.password)) {
+      return res.json({
+        success: false,
+        message: "password",
+      })
+    }
 
     // hash password
     const salt = await bcrypt.genSalt(10)
@@ -105,16 +122,16 @@ exports.editSelf = catchAsyncErrors(async (req, res, next) => {
     console.log("hashed password is: ", req.body.password)
   }
   const fields = Object.keys(req.body)
-  if (fields.filter(el => el !== "email" && el !== "password").length > 0) {
+  if (fields.filter((el) => el !== "email" && el !== "password").length > 0) {
     res.json({
-      error: "Internal Server Error"
+      error: "Internal Server Error",
     })
   }
   const values = Object.values(req.body)
 
-  const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  const setClause = fields.map((field) => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
   // converts form values to db appropriate values
-  values = values.map(value => (value === "role" ? value.join(",") : value))
+  values = values.map((value) => (value === "role" ? value.join(",") : value))
 
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
   values.push(req.body.user) // ensures that username is bounded by ''
@@ -135,7 +152,7 @@ exports.allUsers = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    usersData
+    usersData,
   })
 })
 
@@ -145,8 +162,8 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
   // Validate that required fields are present
   if (!username || !password) {
     return res.json({
+      success: false,
       message: "required",
-      success: false
     })
   }
 
@@ -158,11 +175,19 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
   // return result
   if (result.length > 0)
     return res.json({
+      success: false,
       message: "conflict",
-      success: false
     })
 
   // validate password
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/
+
+  if (!passwordRegex.test(req.body.password)) {
+    return res.json({
+      success: false,
+      message: "password",
+    })
+  }
 
   // hash password
   const salt = await bcrypt.genSalt(10)
@@ -188,7 +213,7 @@ exports.allGroups = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    groupsData
+    groupsData,
   })
 })
 
@@ -198,8 +223,8 @@ exports.createGroup = catchAsyncErrors(async (req, res, next) => {
   // Validate that required fields are present
   if (!group) {
     return res.json({
+      success: false,
       error: "required",
-      message: "Group name is required"
     })
   }
   // check if group is duplicate
@@ -210,8 +235,8 @@ exports.createGroup = catchAsyncErrors(async (req, res, next) => {
   // return result
   if (result.length > 0)
     return res.json({
+      success: false,
       error: "conflict",
-      message: "This group already exists, please enter a different group name"
     })
 
   // create new group

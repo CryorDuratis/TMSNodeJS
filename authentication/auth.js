@@ -2,9 +2,9 @@
 const jwt = require("jsonwebtoken")
 
 // require app modules
-const { executeQuery } = require("../functions/db")
+const { executeQuery } = require("../config/db")
 const dotenv = require("dotenv")
-const catchAsyncErrors = require("../functions/catchAsyncErrors")
+const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 dotenv.config({ path: "./config/config.env" })
 
 // post /login
@@ -12,8 +12,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   // if token doesnt exist
   if (!req.body.token) {
     return res.json({
-      loggedin: false,
-      message: "Please log in"
+      unauth: true,
     })
   }
   // gets token from httponly request cookie header
@@ -32,16 +31,12 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   // if no matching user found
   if (result.length < 1) {
     return res.json({
-      loggedin: false,
-      message: "Invalid token"
+      unauth: true,
     })
   }
 
   const user = result[0]
-  const usergroups = user.role.split(",")
+  req.user = user.username
 
-  return res.json({
-    loggedin: true,
-    username: user.username
-  })
+  next()
 })
