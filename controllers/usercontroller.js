@@ -206,13 +206,13 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
 // URL post /group/getall
 exports.allGroups = catchAsyncErrors(async (req, res, next) => {
   // get all group info
-  var querystr = `SELECT * FROM grouplist`
+  var querystr = `SELECT groupname FROM grouplist`
   var values = []
 
   const groupsData = await executeQuery(querystr, values)
 
   // return result
-  res.json({
+  return res.json({
     groupsData,
   })
 })
