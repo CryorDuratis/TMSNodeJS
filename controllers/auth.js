@@ -10,14 +10,14 @@ dotenv.config({ path: "./config/config.env" })
 // post /login
 exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   // if token doesnt exist
-  if (!req.cookies.token) {
+  if (!req.body.token) {
     return res.json({
       loggedin: false,
       message: "Please log in"
     })
   }
   // gets token from httponly request cookie header
-  const token = req.cookies.token
+  const token = req.body.token
 
   // gets loggedin user username
   const payload = jwt.verify(token, process.env.JWT_SECRET)

@@ -13,7 +13,7 @@ const { Checkgroup } = require("./controllers/checkGroup")
 const app = express()
 
 // Uncaught exception error shuts down server here
-process.on("uncaughtException", (err) => {
+process.on("uncaughtException", err => {
   console.log(`Error: ${err.stack}`)
   console.log("Shutting down the server due to uncaught exception.")
   process.exit(1)
@@ -26,7 +26,7 @@ const environment = process.env.NODE_ENV
 const bodyParser = express.json()
 
 // Middleware used here
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }))
+app.use(cors({ origin: "http://localhost:3000" }))
 app.use(bodyParser)
 app.use(cookieParser())
 
@@ -57,7 +57,7 @@ app.use(router)
 app.all("*", (req, res) => {
   res.json({
     error: "routenotfound",
-    message: `404 error, ${req.originalUrl} route not found`,
+    message: `404 error, ${req.originalUrl} route not found`
   })
 })
 
@@ -67,12 +67,12 @@ app.use((err, req, res, next) => {
   if (err.name === "TokenExpiredError") {
     return res.json({
       loggedin: false,
-      message: "Your session has expired, please log in again",
+      message: "Your session has expired, please log in again"
     })
   } else {
     console.log(err)
     return res.json({
-      error: "Internal Server Error",
+      error: "Internal Server Error"
     })
   }
 })
@@ -83,7 +83,7 @@ const server = app.listen(port, () => {
 })
 
 // Unhandled promise rejection error
-process.on("unhandledRejection", (err) => {
+process.on("unhandledRejection", err => {
   console.log(`Error: ${err.message}`)
   console.log("Shutting down the server due to unhandled promise rejection.")
   server.close(() => {
