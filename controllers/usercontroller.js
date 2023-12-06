@@ -71,9 +71,9 @@ exports.profile = catchAsyncErrors(async (req, res, next) => {
 
 // post /user/edit
 exports.editUser = catchAsyncErrors(async (req, res, next) => {
-  if (req.body.password) {
+  if (req.body.password !== undefined) {
     // validate password
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\\/-])[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?~\\\/-]{8,10}$/
 
     if (!passwordRegex.test(req.body.password)) {
       return res.json({
@@ -87,26 +87,30 @@ exports.editUser = catchAsyncErrors(async (req, res, next) => {
     req.body.password = await bcrypt.hash(req.body.password, salt)
     console.log("hashed password is: ", req.body.password)
   }
-  const fields = Object.keys(req.body)
-  const values = Object.values(req.body)
+
+  const { groupname, token, ...rest } = req.body
+
+  const fields = Object.keys(rest)
+  const values = Object.values(rest)
   const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
-  // converts form values to db appropriate values
-  values = values.map(value => (value === "role" ? value.join(",") : value))
 
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
-  values.push(req.body.user) // ensures that username is bounded by ''
+  values.push(req.body.username) // ensures that username is bounded by ''
 
-  console.log(querystr)
+  console.log("querystr: ", querystr)
+  console.log("values: ", values)
   const userData = await executeQuery(querystr, values) // replace all the ? with the form values
   // return result
-  res.end()
+  return res.json({
+    success: true
+  })
 })
 
 // URL post /user/editself
 exports.editSelf = catchAsyncErrors(async (req, res, next) => {
-  if (req.body.password) {
+  if (req.body.password !== undefined) {
     // validate password
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\\/-])[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?~\\\/-]{8,10}$/
 
     if (!passwordRegex.test(req.body.password)) {
       return res.json({
@@ -120,25 +124,23 @@ exports.editSelf = catchAsyncErrors(async (req, res, next) => {
     req.body.password = await bcrypt.hash(req.body.password, salt)
     console.log("hashed password is: ", req.body.password)
   }
-  const fields = Object.keys(req.body)
-  if (fields.filter(el => el !== "email" && el !== "password").length > 0) {
-    res.json({
-      error: "Internal Server Error"
-    })
-  }
-  const values = Object.values(req.body)
+
+  const { groupname, token, ...rest } = req.body
+
+  const fields = Object.keys(rest)
+  const values = Object.values(rest)
 
   const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
-  // converts form values to db appropriate values
-  values = values.map(value => (value === "role" ? value.join(",") : value))
 
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
-  values.push(req.body.user) // ensures that username is bounded by ''
+  values.push(req.user) // ensures that username is bounded by ''
 
   console.log(querystr)
   const userData = await executeQuery(querystr, values) // replace all the ? with the form values
   // return result
-  res.end()
+  return res.json({
+    success: true
+  })
 })
 
 // URL post /user/getall
@@ -179,7 +181,7 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
     })
 
   // validate password
-  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\\/-])[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?~\\\/-]{8,10}$/
 
   if (!passwordRegex.test(req.body.password)) {
     return res.json({
@@ -199,7 +201,9 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
 
   result = await executeQuery(querystr, values)
   // return result
-  res.end()
+  return res.json({
+    success: true
+  })
 })
 
 // URL post /group/getall
