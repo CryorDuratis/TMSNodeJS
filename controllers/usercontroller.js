@@ -14,7 +14,7 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (!username || !password) {
     return res.json({
       success: false,
-      message: "required"
+      message: "required",
     })
   }
 
@@ -28,7 +28,7 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (result.length < 1) {
     return res.json({
       success: false,
-      message: "invalid"
+      message: "invalid",
     })
   }
 
@@ -43,7 +43,7 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (!isMatched) {
     return res.json({
       success: false,
-      message: "invalid"
+      message: "invalid",
     })
   }
 
@@ -62,10 +62,10 @@ exports.profile = catchAsyncErrors(async (req, res, next) => {
   var querystr = `SELECT email FROM users WHERE username = ?`
   const values = [username]
 
-  const email = await executeQuery(querystr, values)
+  const result = await executeQuery(querystr, values)
   // return result
   res.json({
-    email
+    email: result[0].email,
   })
 })
 
@@ -78,7 +78,7 @@ exports.editUser = catchAsyncErrors(async (req, res, next) => {
     if (!passwordRegex.test(req.body.password)) {
       return res.json({
         success: false,
-        message: "password"
+        message: "password",
       })
     }
 
@@ -92,7 +92,7 @@ exports.editUser = catchAsyncErrors(async (req, res, next) => {
 
   const fields = Object.keys(rest)
   const values = Object.values(rest)
-  const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  const setClause = fields.map((field) => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
 
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
   values.push(req.body.username) // ensures that username is bounded by ''
@@ -102,7 +102,7 @@ exports.editUser = catchAsyncErrors(async (req, res, next) => {
   const userData = await executeQuery(querystr, values) // replace all the ? with the form values
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 
@@ -115,7 +115,7 @@ exports.editSelf = catchAsyncErrors(async (req, res, next) => {
     if (!passwordRegex.test(req.body.password)) {
       return res.json({
         success: false,
-        message: "password"
+        message: "password",
       })
     }
 
@@ -130,7 +130,7 @@ exports.editSelf = catchAsyncErrors(async (req, res, next) => {
   const fields = Object.keys(rest)
   const values = Object.values(rest)
 
-  const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  const setClause = fields.map((field) => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
 
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
   values.push(req.user) // ensures that username is bounded by ''
@@ -139,7 +139,7 @@ exports.editSelf = catchAsyncErrors(async (req, res, next) => {
   const userData = await executeQuery(querystr, values) // replace all the ? with the form values
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 
@@ -153,7 +153,7 @@ exports.allUsers = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    usersData
+    usersData,
   })
 })
 
@@ -164,7 +164,7 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
   if (!username || !password) {
     return res.json({
       success: false,
-      message: "required"
+      message: "required",
     })
   }
 
@@ -177,7 +177,7 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      message: "conflict"
+      message: "conflict",
     })
 
   // validate password
@@ -186,7 +186,7 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
   if (!passwordRegex.test(req.body.password)) {
     return res.json({
       success: false,
-      message: "password"
+      message: "password",
     })
   }
 
@@ -202,7 +202,7 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 
@@ -216,7 +216,7 @@ exports.allGroups = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   return res.json({
-    groupsData
+    groupsData,
   })
 })
 
@@ -227,7 +227,7 @@ exports.createGroup = catchAsyncErrors(async (req, res, next) => {
   if (!group) {
     return res.json({
       success: false,
-      message: "required"
+      message: "required",
     })
   }
   // check if group is duplicate
@@ -239,7 +239,7 @@ exports.createGroup = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      message: "conflict"
+      message: "conflict",
     })
 
   // create new group
