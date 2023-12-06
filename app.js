@@ -7,13 +7,13 @@ const cookieParser = require("cookie-parser")
 // All controller API are imported here
 const { isAuthenticatedUser } = require("./authentication/auth")
 const { loginForm, logout, profile, createUser, editUser, allUsers, allGroups, createGroup, editSelf } = require("./controllers/usercontroller")
-const { Checkgroup } = require("./controllers/checkGroup")
+const { Checkgroup, isAuthorized } = require("./controllers/checkGroup")
 
 // Express is initiated here
 const app = express()
 
 // Uncaught exception error shuts down server here
-process.on("uncaughtException", (err) => {
+process.on("uncaughtException", err => {
   console.log(`Error: ${err.stack}`)
   console.log("Shutting down the server due to uncaught exception.")
   process.exit(1)
@@ -36,18 +36,18 @@ const router = express.Router()
 // Authentication and Authorization routes
 router.route("/login").post(loginForm) // post username password, send cookie-token success username
 router.route("/logout").post(logout) // post, send cookie-token
-
-// Check permit
 router.route("/checkgroup").post(isAuthenticatedUser, Checkgroup) // post username usergroup, send usergroup(boolean)
 
-// Data queries
+// All users
 router.route("/user").post(isAuthenticatedUser, profile) // post username, send email
-router.route("/user/create").post(isAuthenticatedUser, createUser) // post user *data, send
-router.route("/user/edit").post(isAuthenticatedUser, editUser) // post userdata, send
 router.route("/user/editself").post(isAuthenticatedUser, editSelf) // post userdata, send
-router.route("/user/getall").post(isAuthenticatedUser, allUsers) // post, send *users
-router.route("/group/getall").post(isAuthenticatedUser, allGroups) // post, send *groups
-router.route("/group/create").post(isAuthenticatedUser, createGroup) // post group, send
+
+// User group dependent
+router.route("/user/create").post(isAuthenticatedUser, isAuthorized, createUser) // post user *data, send
+router.route("/user/edit").post(isAuthenticatedUser, isAuthorized, editUser) // post userdata, send
+router.route("/user/getall").post(isAuthenticatedUser, isAuthorized, allUsers) // post, send *users
+router.route("/group/getall").post(isAuthenticatedUser, isAuthorized, allGroups) // post, send *groups
+router.route("/group/create").post(isAuthenticatedUser, isAuthorized, createGroup) // post group, send
 
 // use router
 app.use(router)
@@ -55,8 +55,7 @@ app.use(router)
 // Route not found catch
 app.all("*", (req, res) => {
   res.json({
-    error: "routenotfound",
-    message: `404 error, ${req.originalUrl} route not found`,
+    error: "routenotfound"
   })
 })
 
@@ -65,13 +64,12 @@ app.use((err, req, res, next) => {
   console.error(err.message)
   if (err.name === "TokenExpiredError") {
     return res.json({
-      loggedin: false,
-      message: "Your session has expired, please log in again",
+      error: "routenotfound"
     })
   } else {
     console.log(err)
     return res.json({
-      error: "Internal Server Error",
+      error: "Internal Server Error"
     })
   }
 })
@@ -82,7 +80,7 @@ const server = app.listen(port, () => {
 })
 
 // Unhandled promise rejection error
-process.on("unhandledRejection", (err) => {
+process.on("unhandledRejection", err => {
   console.log(`Error: ${err.message}`)
   console.log("Shutting down the server due to unhandled promise rejection.")
   server.close(() => {

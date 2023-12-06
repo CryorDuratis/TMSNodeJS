@@ -12,7 +12,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   // if token doesnt exist
   if (!req.body.token) {
     return res.json({
-      unauth: true,
+      unauth: "login"
     })
   }
   // gets token from httponly request cookie header
@@ -31,7 +31,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   // if no matching user found
   if (result.length < 1) {
     return res.json({
-      unauth: true,
+      unauth: "login"
     })
   }
 

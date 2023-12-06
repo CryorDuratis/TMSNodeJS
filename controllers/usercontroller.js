@@ -4,10 +4,9 @@ const bcrypt = require("bcryptjs")
 // require app modules
 const { executeQuery } = require("../config/db")
 const sendToken = require("../authentication/JWToken")
-const { Checkgroup } = require("./checkGroup")
 const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 
-// URL post /login
+// post /login
 exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   const { username, password } = req.body
 
@@ -15,7 +14,7 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (!username || !password) {
     return res.json({
       success: false,
-      message: "required",
+      message: "required"
     })
   }
 
@@ -29,7 +28,7 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (result.length < 1) {
     return res.json({
       success: false,
-      message: "invalid",
+      message: "invalid"
     })
   }
 
@@ -44,19 +43,19 @@ exports.loginForm = catchAsyncErrors(async (req, res, next) => {
   if (!isMatched) {
     return res.json({
       success: false,
-      message: "invalid",
+      message: "invalid"
     })
   }
 
   sendToken(user, res)
 })
 
-// URL post /logout, token will be emptied, then react side will redirect to login
+// post /logout, token will be emptied, then react side will redirect to login
 exports.logout = catchAsyncErrors(async (req, res, next) => {
   res.clearCookie("token").end()
 })
 
-// URL post /user
+// post /user
 exports.profile = catchAsyncErrors(async (req, res, next) => {
   const username = req.user
 
@@ -66,11 +65,11 @@ exports.profile = catchAsyncErrors(async (req, res, next) => {
   const email = await executeQuery(querystr, values)
   // return result
   res.json({
-    email,
+    email
   })
 })
 
-// URL post /user/edit
+// post /user/edit
 exports.editUser = catchAsyncErrors(async (req, res, next) => {
   if (req.body.password) {
     // validate password
@@ -79,7 +78,7 @@ exports.editUser = catchAsyncErrors(async (req, res, next) => {
     if (!passwordRegex.test(req.body.password)) {
       return res.json({
         success: false,
-        message: "password",
+        message: "password"
       })
     }
 
@@ -90,9 +89,9 @@ exports.editUser = catchAsyncErrors(async (req, res, next) => {
   }
   const fields = Object.keys(req.body)
   const values = Object.values(req.body)
-  const setClause = fields.map((field) => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
   // converts form values to db appropriate values
-  values = values.map((value) => (value === "role" ? value.join(",") : value))
+  values = values.map(value => (value === "role" ? value.join(",") : value))
 
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
   values.push(req.body.user) // ensures that username is bounded by ''
@@ -112,7 +111,7 @@ exports.editSelf = catchAsyncErrors(async (req, res, next) => {
     if (!passwordRegex.test(req.body.password)) {
       return res.json({
         success: false,
-        message: "password",
+        message: "password"
       })
     }
 
@@ -122,16 +121,16 @@ exports.editSelf = catchAsyncErrors(async (req, res, next) => {
     console.log("hashed password is: ", req.body.password)
   }
   const fields = Object.keys(req.body)
-  if (fields.filter((el) => el !== "email" && el !== "password").length > 0) {
+  if (fields.filter(el => el !== "email" && el !== "password").length > 0) {
     res.json({
-      error: "Internal Server Error",
+      error: "Internal Server Error"
     })
   }
   const values = Object.values(req.body)
 
-  const setClause = fields.map((field) => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
   // converts form values to db appropriate values
-  values = values.map((value) => (value === "role" ? value.join(",") : value))
+  values = values.map(value => (value === "role" ? value.join(",") : value))
 
   var querystr = `UPDATE users SET ${setClause} WHERE username = ?`
   values.push(req.body.user) // ensures that username is bounded by ''
@@ -152,7 +151,7 @@ exports.allUsers = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    usersData,
+    usersData
   })
 })
 
@@ -163,7 +162,7 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
   if (!username || !password) {
     return res.json({
       success: false,
-      message: "required",
+      message: "required"
     })
   }
 
@@ -176,7 +175,7 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      message: "conflict",
+      message: "conflict"
     })
 
   // validate password
@@ -185,7 +184,7 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
   if (!passwordRegex.test(req.body.password)) {
     return res.json({
       success: false,
-      message: "password",
+      message: "password"
     })
   }
 
@@ -213,7 +212,7 @@ exports.allGroups = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   return res.json({
-    groupsData,
+    groupsData
   })
 })
 
@@ -224,7 +223,7 @@ exports.createGroup = catchAsyncErrors(async (req, res, next) => {
   if (!group) {
     return res.json({
       success: false,
-      error: "required",
+      message: "required"
     })
   }
   // check if group is duplicate
@@ -236,7 +235,7 @@ exports.createGroup = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      error: "conflict",
+      message: "conflict"
     })
 
   // create new group
