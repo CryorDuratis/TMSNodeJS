@@ -159,9 +159,9 @@ exports.allUsers = catchAsyncErrors(async (req, res, next) => {
 
 // URL post /user/create
 exports.createUser = catchAsyncErrors(async (req, res, next) => {
-  const { username, password, email = null, role = null } = req.body
+  const { username, email = null, role = null } = req.body
   // Validate that required fields are present
-  if (!username || !password) {
+  if (!username || !req.body.password) {
     return res.json({
       success: false,
       message: "required"
@@ -192,8 +192,8 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
 
   // hash password
   const salt = await bcrypt.genSalt(10)
-  req.body.password = await bcrypt.hash(req.body.password, salt)
-  console.log("hashed password is: ", req.body.password)
+  const password = await bcrypt.hash(req.body.password, salt)
+  console.log("hashed password is: ", password)
 
   // insert
   querystr = `INSERT INTO users VALUES (?,?,?,?,1)`

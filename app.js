@@ -30,6 +30,21 @@ app.use(cors({ origin: "http://localhost:3000" }))
 app.use(bodyParser)
 app.use(cookieParser())
 
+// Error-handling middleware (defined after other routes and middleware)
+app.use((err, req, res, next) => {
+  console.error(err.message)
+  if (err && err.name === "TokenExpiredError") {
+    return res.json({
+      error: "routenotfound"
+    })
+  } else {
+    console.log(err)
+    return res.json({
+      error: "Internal Server Error"
+    })
+  }
+})
+
 // Router is initialized here
 const router = express.Router()
 
@@ -57,21 +72,6 @@ app.all("*", (req, res) => {
   res.json({
     error: "routenotfound"
   })
-})
-
-// Error-handling middleware (defined after other routes and middleware)
-app.use((err, req, res, next) => {
-  console.error(err.message)
-  if (err.name === "TokenExpiredError") {
-    return res.json({
-      error: "routenotfound"
-    })
-  } else {
-    console.log(err)
-    return res.json({
-      error: "Internal Server Error"
-    })
-  }
 })
 
 // Server started on port
