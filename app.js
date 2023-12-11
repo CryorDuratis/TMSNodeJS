@@ -57,12 +57,30 @@ router.route("/checkgroup").post(isAuthenticatedUser, Checkgroup) // post userna
 router.route("/user").post(isAuthenticatedUser, profile) // post username, send email
 router.route("/user/editself").post(isAuthenticatedUser, editSelf) // post userdata, send
 
-// User group dependent
+// User mgmt
+router.route("/user/getall").post(isAuthenticatedUser, isAuthorized, allUsers) // post, send *users
 router.route("/user/create").post(isAuthenticatedUser, isAuthorized, createUser) // post user *data, send
 router.route("/user/edit").post(isAuthenticatedUser, isAuthorized, editUser) // post userdata, send
-router.route("/user/getall").post(isAuthenticatedUser, isAuthorized, allUsers) // post, send *users
+
+// Groups
 router.route("/group/getall").post(isAuthenticatedUser, isAuthorized, allGroups) // post, send *groups
 router.route("/group/create").post(isAuthenticatedUser, isAuthorized, createGroup) // post group, send
+
+// Apps
+router.route("/app").post(isAuthenticatedUser, isAuthorized, getApp) // edit button for PL only, view details button for anyone
+router.route("/app/getall").post(isAuthenticatedUser, isAuthorized, allApps) // when app page is loaded by anyone
+router.route("/app/create").post(isAuthenticatedUser, isAuthorized, createApp) // submit button for PL only
+router.route("/app/edit").post(isAuthenticatedUser, isAuthorized, editApp) // submit button for PL only
+
+// Plans
+router.route("/plan").post(isAuthenticatedUser, isAuthorized, getPlan) // display plan dates when selected by task
+router.route("/plan/getall").post(isAuthenticatedUser, isAuthorized, allPlans) // when plan page is loaded by PM
+router.route("/plan/create").post(isAuthenticatedUser, isAuthorized, createPlan) // button for PM only
+router.route("/plan/edit").post(isAuthenticatedUser, isAuthorized, editPlan) // button for PM only
+
+// Tasks
+router.route("/Task/getall").post(isAuthenticatedUser, isAuthorized, allTasks) // display kanban board for all users
+router.route("/Task/getall").post(isAuthenticatedUser, isAuthorized, getTask) // display task information to everyone
 
 // use router
 app.use(router)
