@@ -3,18 +3,18 @@ const { executeQuery } = require("../config/db")
 const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 
 // post /app/create
-exports.createApp = catchAsyncErrors(async (req, res, next) => {
+exports.createPlan = catchAsyncErrors(async (req, res, next) => {
   res.clearCookie("token").end()
 })
 // post /app/edit
-exports.editApp = catchAsyncErrors(async (req, res, next) => {
+exports.editPlan = catchAsyncErrors(async (req, res, next) => {
   res.clearCookie("token").end()
 })
 // post /app
-exports.getApp = catchAsyncErrors(async (req, res, next) => {
+exports.getPlan = catchAsyncErrors(async (req, res, next) => {
   res.clearCookie("token").end()
 })
 // post /app/getAll
-exports.allApps = catchAsyncErrors(async (req, res, next) => {
+exports.allPlans = catchAsyncErrors(async (req, res, next) => {
   res.clearCookie("token").end()
 })

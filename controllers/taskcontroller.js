@@ -3,30 +3,15 @@ const { executeQuery } = require("../config/db")
 const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 
 // post /task/create
+exports.createTask = catchAsyncErrors(async (req, res, next) => {
+  res.clearCookie("token").end()
+})
+// post /task
+exports.createApp = catchAsyncErrors(async (req, res, next) => {
+  res.clearCookie("token").end()
+})
 
-// post /task/view
-function stateConvert(number) {
-  let stateString
-  switch (number) {
-    case 1:
-      stateString = "To do list"
-      return
-    case 2:
-      stateString = "Doing"
-      return
-    case 3:
-      stateString = "Done"
-      return
-    case 4:
-      stateString = "Closed"
-      return
-    default:
-      stateString = "Open"
-  }
-  return stateString
-}
-
-// post /task/changestate
+// post /task/promote
 exports.changestate = catchAsyncErrors(async (req, res, next) => {
   var { current, promote } = req.body
 
@@ -39,3 +24,26 @@ exports.changestate = catchAsyncErrors(async (req, res, next) => {
 })
 
 // post /task/edit
+exports.getTask = catchAsyncErrors(async (req, res, next) => {
+  res.clearCookie("token").end()
+})
+// post /task/edit
+exports.createApp = catchAsyncErrors(async (req, res, next) => {
+  res.clearCookie("token").end()
+})
+// post /task/edit
+exports.createApp = catchAsyncErrors(async (req, res, next) => {
+  res.clearCookie("token").end()
+})
+// post /task/edit
+exports.createApp = catchAsyncErrors(async (req, res, next) => {
+  res.clearCookie("token").end()
+})
+// post /task/edit
+exports.createApp = catchAsyncErrors(async (req, res, next) => {
+  res.clearCookie("token").end()
+})
+// post /task/edit
+exports.createApp = catchAsyncErrors(async (req, res, next) => {
+  res.clearCookie("token").end()
+})
