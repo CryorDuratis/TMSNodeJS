@@ -15,16 +15,17 @@ const Checkgroup = catchAsyncErrors(async (userid, groupname) => {
 
 // Isolated API call
 exports.Checkgroup = catchAsyncErrors(async (req, res, next) => {
+  console.log("groupname is ", req.body.groupname)
   const authorized = await Checkgroup(req.user, req.body.groupname)
 
   if (!authorized) {
     return res.json({
       unauth: "role",
-      user: req.user,
+      user: req.user
     })
   } else {
     return res.json({
-      user: req.user,
+      user: req.user
     })
   }
 })
@@ -35,7 +36,7 @@ exports.isAuthorized = catchAsyncErrors(async (req, res, next) => {
 
   if (!authorized) {
     return res.json({
-      unauth: "role",
+      unauth: "role"
     })
   } else {
     next()
