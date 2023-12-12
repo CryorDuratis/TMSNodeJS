@@ -9,7 +9,18 @@ exports.createApp = catchAsyncErrors(async (req, res, next) => {
 // post /app/edit
 exports.editApp = catchAsyncErrors(async (req, res, next) => {})
 // post /app
-exports.getApp = catchAsyncErrors(async (req, res, next) => {})
+exports.getApp = catchAsyncErrors(async (req, res, next) => {
+  const { appacro } = req.body
+
+  var querystr = `SELECT * FROM application WHERE App_Acronym = ?`
+  const values = [appacro]
+
+  const result = await executeQuery(querystr, values)
+  // return result
+  res.json({
+    appdata: result[0]
+  })
+})
 
 // post /app/getAll
 exports.allApps = catchAsyncErrors(async (req, res, next) => {
