@@ -15,7 +15,7 @@ const { getPlan, allPlans, createPlan, editPlan } = require("./controllers/planc
 const app = express()
 
 // Uncaught exception error shuts down server here
-process.on("uncaughtException", (err) => {
+process.on("uncaughtException", err => {
   console.log(`Error: ${err.stack}`)
   console.log("Shutting down the server due to uncaught exception.")
   process.exit(1)
@@ -37,12 +37,12 @@ app.use((err, req, res, next) => {
   console.error(err.message)
   if (err && err.name === "TokenExpiredError") {
     return res.json({
-      error: "routenotfound",
+      error: "routenotfound"
     })
   } else {
     console.log(err)
     return res.json({
-      error: "Internal Server Error",
+      error: "Internal Server Error"
     })
   }
 })
@@ -75,19 +75,19 @@ router.route("/app/create").post(isAuthenticatedUser, isAuthorized, createApp) /
 router.route("/app/edit").post(isAuthenticatedUser, isAuthorized, editApp) // submit button for PL only
 
 // Plans
-router.route("/plan").post(isAuthenticatedUser, isAuthorized, getPlan) // display plan dates when selected by task
-router.route("/plan/getall").post(isAuthenticatedUser, isAuthorized, allPlans) // when plan page is loaded by PM
-router.route("/plan/create").post(isAuthenticatedUser, isAuthorized, createPlan) // button for PM only
-router.route("/plan/edit").post(isAuthenticatedUser, isAuthorized, editPlan) // button for PM only
+// router.route("/plan").post(isAuthenticatedUser, isAuthorized, getPlan) // display plan dates when selected by task
+// router.route("/plan/getall").post(isAuthenticatedUser, isAuthorized, allPlans) // when plan page is loaded by PM
+// router.route("/plan/create").post(isAuthenticatedUser, isAuthorized, createPlan) // button for PM only
+// router.route("/plan/edit").post(isAuthenticatedUser, isAuthorized, editPlan) // button for PM only
 
-// Tasks
-router.route("/task").post(isAuthenticatedUser, isAuthorized, getTask) // display task information to everyone
-router.route("/task/getall").post(isAuthenticatedUser, isAuthorized, allTasks) // display kanban board for all users
-router.route("/Task/create").post(isAuthenticatedUser, isAuthorized, createTask) // create task for PL only
-router.route("/task/edit").post(isAuthenticatedUser, isAuthorized, createTask) // edit task for all users
-router.route("/task/promote").post(isAuthenticatedUser, isAuthorized, promoteTask) // promote task (PM: open)(PL: done)(dev: todo, doing)
-router.route("/task/demote").post(isAuthenticatedUser, isAuthorized, demoteTask) // demote task (PL: done)(dev: doing)
-router.route("/task/reassign").post(isAuthenticatedUser, isAuthorized, reassignTask) // demote task (PL: done)(dev: doing)
+// // Tasks
+// router.route("/task").post(isAuthenticatedUser, isAuthorized, getTask) // display task information to everyone
+// router.route("/task/getall").post(isAuthenticatedUser, isAuthorized, allTasks) // display kanban board for all users
+// router.route("/Task/create").post(isAuthenticatedUser, isAuthorized, createTask) // create task for PL only
+// router.route("/task/edit").post(isAuthenticatedUser, isAuthorized, editTask) // edit task for all users
+// router.route("/task/promote").post(isAuthenticatedUser, isAuthorized, promoteTask) // promote task (PM: open)(PL: done)(dev: todo, doing)
+// router.route("/task/demote").post(isAuthenticatedUser, isAuthorized, demoteTask) // demote task (PL: done)(dev: doing)
+// router.route("/task/reassign").post(isAuthenticatedUser, isAuthorized, reassignTask) // demote task (PL: done)(dev: doing)
 
 // use router
 app.use(router)
@@ -95,7 +95,7 @@ app.use(router)
 // Route not found catch
 app.all("*", (req, res) => {
   res.json({
-    error: "route",
+    error: "route"
   })
 })
 
@@ -105,7 +105,7 @@ const server = app.listen(port, () => {
 })
 
 // Unhandled promise rejection error
-process.on("unhandledRejection", (err) => {
+process.on("unhandledRejection", err => {
   console.log(`Error: ${err.message}`)
   console.log("Shutting down the server due to unhandled promise rejection.")
   server.close(() => {

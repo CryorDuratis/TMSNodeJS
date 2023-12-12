@@ -3,13 +3,9 @@ const { executeQuery } = require("../config/db")
 const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 
 // post /task/create
-exports.createTask = catchAsyncErrors(async (req, res, next) => {
-  res.clearCookie("token").end()
-})
+exports.createTask = catchAsyncErrors(async (req, res, next) => {})
 // post /task
-exports.createApp = catchAsyncErrors(async (req, res, next) => {
-  res.clearCookie("token").end()
-})
+exports.createApp = catchAsyncErrors(async (req, res, next) => {})
 
 // post /task/promote
 exports.changestate = catchAsyncErrors(async (req, res, next) => {
@@ -24,26 +20,14 @@ exports.changestate = catchAsyncErrors(async (req, res, next) => {
 })
 
 // post /task/edit
-exports.getTask = catchAsyncErrors(async (req, res, next) => {
-  res.clearCookie("token").end()
-})
+exports.getTask = catchAsyncErrors(async (req, res, next) => {})
 // post /task/edit
-exports.createApp = catchAsyncErrors(async (req, res, next) => {
-  res.clearCookie("token").end()
-})
+exports.createApp = catchAsyncErrors(async (req, res, next) => {})
 // post /task/edit
-exports.createApp = catchAsyncErrors(async (req, res, next) => {
-  res.clearCookie("token").end()
-})
+exports.createApp = catchAsyncErrors(async (req, res, next) => {})
 // post /task/edit
-exports.createApp = catchAsyncErrors(async (req, res, next) => {
-  res.clearCookie("token").end()
-})
+exports.createApp = catchAsyncErrors(async (req, res, next) => {})
 // post /task/edit
-exports.createApp = catchAsyncErrors(async (req, res, next) => {
-  res.clearCookie("token").end()
-})
+exports.createApp = catchAsyncErrors(async (req, res, next) => {})
 // post /task/edit
-exports.createApp = catchAsyncErrors(async (req, res, next) => {
-  res.clearCookie("token").end()
-})
+exports.createApp = catchAsyncErrors(async (req, res, next) => {})
