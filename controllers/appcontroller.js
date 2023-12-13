@@ -10,7 +10,7 @@ exports.createApp = catchAsyncErrors(async (req, res, next) => {
   if (!App_Acronym || !App_Rnumber) {
     return res.json({
       success: false,
-      message: "required"
+      message: "required",
     })
   }
 
@@ -23,17 +23,17 @@ exports.createApp = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      message: "conflict"
+      message: "conflict",
     })
 
   // insert
-  querystr = `INSERT INTO application VALUES (?,?,?,?,?,?,?,?,'Project Lead')`
-  values = [App_Acronym, App_Rnumber, App_startDate, App_endDate, App_Description, App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done]
+  querystr = `INSERT INTO application VALUES (?,?,?,?,?,?,?,?,?,'Project Lead')`
+  values = [App_Acronym, App_Description, App_Rnumber, App_startDate, App_endDate, App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done]
   console.log("values inserted are ", values)
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 // post /app/edit
@@ -42,7 +42,7 @@ exports.editApp = catchAsyncErrors(async (req, res, next) => {
 
   const fields = Object.keys(rest)
   const values = Object.values(rest)
-  const setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  const setClause = fields.map((field) => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
 
   var querystr = `UPDATE application SET ${setClause} WHERE App_Acronym = ?`
   values.push(appacro)
@@ -52,7 +52,7 @@ exports.editApp = catchAsyncErrors(async (req, res, next) => {
   const appData = await executeQuery(querystr, values) // replace all the ? with the form values
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 // post /app
@@ -65,7 +65,7 @@ exports.getApp = catchAsyncErrors(async (req, res, next) => {
   const result = await executeQuery(querystr, values)
   // return result
   res.json({
-    appdata: result[0]
+    appdata: result[0],
   })
 })
 
@@ -79,6 +79,6 @@ exports.allApps = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    appsData
+    appsData,
   })
 })
