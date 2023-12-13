@@ -61,11 +61,12 @@ exports.getApp = catchAsyncErrors(async (req, res, next) => {
 
   var querystr = `SELECT * FROM application WHERE App_Acronym = ?`
   const values = [App_Acronym]
+  console.log("values: ", values)
 
   const result = await executeQuery(querystr, values)
   // return result
   res.json({
-    appdata: result[0],
+    appData: result[0],
   })
 })
 
