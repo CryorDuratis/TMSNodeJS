@@ -65,12 +65,12 @@ router.route("/user/create").post(isAuthenticatedUser, isAuthorized, createUser)
 router.route("/user/edit").post(isAuthenticatedUser, isAuthorized, editUser) // post userdata, send
 
 // Groups
-router.route("/group/getall").post(isAuthenticatedUser, isAuthorized, allGroups) // post, send *groups
+router.route("/group/getall").post(isAuthenticatedUser, allGroups) // post, send *groups
 router.route("/group/create").post(isAuthenticatedUser, isAuthorized, createGroup) // post group, send
 
 // Apps
 router.route("/app").post(isAuthenticatedUser, isAuthorized, getApp) // edit button for PL only, view details button for anyone
-router.route("/app/getall").post(isAuthenticatedUser, isAuthorized, allApps) // when app page is loaded by anyone
+router.route("/app/getall").post(isAuthenticatedUser, allApps) // when app page is loaded by anyone
 router.route("/app/create").post(isAuthenticatedUser, isAuthorized, createApp) // submit button for PL only
 router.route("/app/edit").post(isAuthenticatedUser, isAuthorized, editApp) // submit button for PL only
 
