@@ -4,13 +4,14 @@ const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 
 // post /app/create
 exports.createApp = catchAsyncErrors(async (req, res, next) => {
-  const { App_Acronym, App_Rnumber, App_startDate = null, App_endDate = null, App_Description = null, App_permit_Open = null, App_permit_toDoList = null, App_permit_Doing = null, App_permit_Done = null } = req.body.formData
+  const { App_Acronym, App_Rnumber, App_startDate = null, App_endDate = null, App_Description = null } = req.body.formData
+  const { openPermit, todolistPermit, doingPermit, donePermit } = req.body
 
   // required fields
   if (!App_Acronym || !App_Rnumber) {
     return res.json({
       success: false,
-      message: "required",
+      message: "required"
     })
   }
 
@@ -23,36 +24,39 @@ exports.createApp = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      message: "conflict",
+      message: "conflict"
     })
 
   // insert
   querystr = `INSERT INTO application VALUES (?,?,?,?,?,?,?,?,?,'Project Lead')`
-  values = [App_Acronym, App_Description, App_Rnumber, App_startDate, App_endDate, App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done]
+  values = [App_Acronym, App_Description, App_Rnumber, App_startDate, App_endDate, openPermit, todolistPermit, doingPermit, donePermit]
   console.log("values inserted are ", values)
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true,
+    success: true
   })
 })
 // post /app/edit
 exports.editApp = catchAsyncErrors(async (req, res, next) => {
-  const { groupname, token, appacro, ...rest } = req.body
+  const { App_Acronym, App_Rnumber, ...rest } = req.body.formData
+  const { openPermit, todolistPermit, doingPermit, donePermit } = req.body
 
   const fields = Object.keys(rest)
   const values = Object.values(rest)
-  const setClause = fields.map((field) => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  var setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
+  setClause += ",`App_permit_Open`=?,`App_permit_toDoList`=?,`App_permit_Doing`=?,`App_permit_Done`=?"
 
   var querystr = `UPDATE application SET ${setClause} WHERE App_Acronym = ?`
-  values.push(appacro)
+  values.push(openPermit, todolistPermit, doingPermit, donePermit)
+  values.push(App_Acronym)
 
   console.log("querystr: ", querystr)
   console.log("values: ", values)
   const appData = await executeQuery(querystr, values) // replace all the ? with the form values
   // return result
   return res.json({
-    success: true,
+    success: true
   })
 })
 // post /app
@@ -66,7 +70,7 @@ exports.getApp = catchAsyncErrors(async (req, res, next) => {
   const result = await executeQuery(querystr, values)
   // return result
   res.json({
-    appData: result[0],
+    appData: result[0]
   })
 })
 
@@ -80,6 +84,6 @@ exports.allApps = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    appsData,
+    appsData
   })
 })
