@@ -69,7 +69,7 @@ router.route("/group/getall").post(isAuthenticatedUser, allGroups) // post, send
 router.route("/group/create").post(isAuthenticatedUser, isAuthorized, createGroup) // post group, send
 
 // Apps
-router.route("/app").post(isAuthenticatedUser, isAuthorized, getApp) // edit button for PL only, view details button for anyone
+router.route("/app").post(isAuthenticatedUser, getApp) // edit button for PL only, view details button for anyone
 router.route("/app/getall").post(isAuthenticatedUser, allApps) // when app page is loaded by anyone
 router.route("/app/create").post(isAuthenticatedUser, isAuthorized, createApp) // submit button for PL only
 router.route("/app/edit").post(isAuthenticatedUser, isAuthorized, editApp) // submit button for PL only
@@ -84,10 +84,17 @@ router.route("/app/edit").post(isAuthenticatedUser, isAuthorized, editApp) // su
 // router.route("/task").post(isAuthenticatedUser, isAuthorized, getTask) // display task information to everyone
 // router.route("/task/getall").post(isAuthenticatedUser, isAuthorized, allTasks) // display kanban board for all users
 // router.route("/Task/create").post(isAuthenticatedUser, isAuthorized, createTask) // create task for PL only
-// router.route("/task/edit").post(isAuthenticatedUser, isAuthorized, editTask) // edit task for all users
-// router.route("/task/promote").post(isAuthenticatedUser, isAuthorized, promoteTask) // promote task (PM: open)(PL: done)(dev: todo, doing)
-// router.route("/task/demote").post(isAuthenticatedUser, isAuthorized, demoteTask) // demote task (PL: done)(dev: doing)
-// router.route("/task/reassign").post(isAuthenticatedUser, isAuthorized, reassignTask) // demote task (PL: done)(dev: doing)
+// router.route("/task/edit").post(isAuthenticatedUser, isAuthorized, editTask) // edit notes only
+
+// router.route("/task/promote").post(isAuthenticatedUser, isAuthorized, promoteTask) // promote task and edit notes
+// router.route("/task/demote").post(isAuthenticatedUser, isAuthorized, demoteTask) // demote task and edit notes and plan
+// router.route("/task/reassign").post(isAuthenticatedUser, isAuthorized, reassignTask) // demote task ,notes and plan
+
+// const newnote = "asjadlskjd"
+// if (req.body.note) {
+//   newnote += "msg: " + req.body.note
+// }
+// query(querystr, [newnote, taskid])
 
 // use router
 app.use(router)
