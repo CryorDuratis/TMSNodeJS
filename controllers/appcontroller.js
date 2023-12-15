@@ -5,7 +5,7 @@ const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 // post /app/create
 exports.createApp = catchAsyncErrors(async (req, res, next) => {
   const { App_Acronym, App_Rnumber, App_startDate = null, App_endDate = null, App_Description = null } = req.body.formData
-  const { openPermit, todolistPermit, doingPermit, donePermit } = req.body
+  const { createPermit, openPermit, todolistPermit, doingPermit, donePermit } = req.body
 
   // required fields
   if (!App_Acronym || !App_Rnumber) {
@@ -28,8 +28,8 @@ exports.createApp = catchAsyncErrors(async (req, res, next) => {
     })
 
   // insert
-  querystr = `INSERT INTO application VALUES (?,?,?,?,?,?,?,?,?,'Project Lead')`
-  values = [App_Acronym, App_Description, App_Rnumber, App_startDate, App_endDate, openPermit, todolistPermit, doingPermit, donePermit]
+  querystr = `INSERT INTO application VALUES (?,?,?,?,?,?,?,?,?,?)`
+  values = [App_Acronym, App_Description, App_Rnumber, App_startDate, App_endDate, openPermit, todolistPermit, doingPermit, donePermit, createPermit]
   console.log("values inserted are ", values)
   result = await executeQuery(querystr, values)
   // return result
@@ -40,15 +40,15 @@ exports.createApp = catchAsyncErrors(async (req, res, next) => {
 // post /app/edit
 exports.editApp = catchAsyncErrors(async (req, res, next) => {
   const { App_Acronym, App_Rnumber, ...rest } = req.body.formData
-  const { openPermit, todolistPermit, doingPermit, donePermit } = req.body
+  const { createPermit, openPermit, todolistPermit, doingPermit, donePermit } = req.body
 
   const fields = Object.keys(rest)
   const values = Object.values(rest)
   var setClause = fields.map(field => `\`${field}\` = ?`).join(", ") // col1 = ?, col2 = ?...
-  setClause += ",`App_permit_Open`=?,`App_permit_toDoList`=?,`App_permit_Doing`=?,`App_permit_Done`=?"
+  setClause += ",`App_permit_Create`=?,`App_permit_Open`=?,`App_permit_toDoList`=?,`App_permit_Doing`=?,`App_permit_Done`=?"
 
   var querystr = `UPDATE application SET ${setClause} WHERE App_Acronym = ?`
-  values.push(openPermit, todolistPermit, doingPermit, donePermit)
+  values.push(createPermit, openPermit, todolistPermit, doingPermit, donePermit)
   values.push(App_Acronym)
 
   console.log("querystr: ", querystr)

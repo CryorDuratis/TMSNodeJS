@@ -45,8 +45,8 @@ exports.editPlan = catchAsyncErrors(async (req, res, next) => {
   var setClause = fields.map(field => `\`${field}\` = ?`).join(", ")
 
   var querystr = `UPDATE plan SET ${setClause} WHERE Plan_MVP_name = ? AND Plan_app_Acronym = ?`
-  console.log("values: ", values)
-  // values.push()
+
+  values.push(Plan_MVP_name, Plan_app_Acronym)
 
   const planData = await executeQuery(querystr, values)
   // return result
