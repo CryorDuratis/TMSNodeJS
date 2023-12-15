@@ -75,10 +75,10 @@ router.route("/app/create").post(isAuthenticatedUser, isAuthorized, createApp) /
 router.route("/app/edit").post(isAuthenticatedUser, isAuthorized, editApp) // submit button for PL only
 
 // Plans
-// router.route("/plan").post(isAuthenticatedUser, isAuthorized, getPlan) // display plan dates when selected by task
-// router.route("/plan/getall").post(isAuthenticatedUser, isAuthorized, allPlans) // when plan page is loaded by PM
-// router.route("/plan/create").post(isAuthenticatedUser, isAuthorized, createPlan) // button for PM only
-// router.route("/plan/edit").post(isAuthenticatedUser, isAuthorized, editPlan) // button for PM only
+router.route("/plan").post(isAuthenticatedUser, getPlan) // display plan dates when selected by task
+router.route("/plan/getall").post(isAuthenticatedUser, allPlans) // when plan page is loaded by PM
+router.route("/plan/create").post(isAuthenticatedUser, isAuthorized, createPlan) // button for PM only
+router.route("/plan/edit").post(isAuthenticatedUser, isAuthorized, editPlan) // button for PM only
 
 // // Tasks
 // router.route("/task").post(isAuthenticatedUser, isAuthorized, getTask) // display task information to everyone

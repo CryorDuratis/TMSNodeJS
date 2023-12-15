@@ -73,7 +73,6 @@ exports.getApp = catchAsyncErrors(async (req, res, next) => {
     appData: result[0]
   })
 })
-
 // post /app/getAll
 exports.allApps = catchAsyncErrors(async (req, res, next) => {
   // get all app info
