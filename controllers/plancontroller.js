@@ -10,7 +10,7 @@ exports.createPlan = catchAsyncErrors(async (req, res, next) => {
   if (!Plan_MVP_name) {
     return res.json({
       success: false,
-      message: "required"
+      message: "required",
     })
   }
 
@@ -23,7 +23,7 @@ exports.createPlan = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      message: "conflict"
+      message: "conflict",
     })
 
   // insert
@@ -33,7 +33,7 @@ exports.createPlan = catchAsyncErrors(async (req, res, next) => {
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 // post /plan/edit
@@ -42,7 +42,7 @@ exports.editPlan = catchAsyncErrors(async (req, res, next) => {
 
   const fields = Object.keys(rest)
   const values = Object.values(rest)
-  var setClause = fields.map(field => `\`${field}\` = ?`).join(", ")
+  var setClause = fields.map((field) => `\`${field}\` = ?`).join(", ")
 
   var querystr = `UPDATE plan SET ${setClause} WHERE Plan_MVP_name = ? AND Plan_app_Acronym = ?`
 
@@ -51,7 +51,7 @@ exports.editPlan = catchAsyncErrors(async (req, res, next) => {
   const planData = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 // post /plan
@@ -65,19 +65,19 @@ exports.getPlan = catchAsyncErrors(async (req, res, next) => {
   const result = await executeQuery(querystr, values)
   // return result
   res.json({
-    planData: result[0]
+    planData: result[0],
   })
 })
 // post /plan/getAll
 exports.allPlans = catchAsyncErrors(async (req, res, next) => {
   // get all plan info
-  var querystr = "SELECT * FROM plan ORDER BY `plan_endDate` DESC"
-  var values = []
+  var querystr = "SELECT * FROM plan WHERE `Plan_app_Acronym` = ? ORDER BY `Plan_endDate` DESC"
+  var values = [req.body.appid]
 
   const plansData = await executeQuery(querystr, values)
 
   // return result
   res.json({
-    plansData
+    plansData,
   })
 })
