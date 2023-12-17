@@ -84,7 +84,7 @@ router.route("/plan/edit").post(isAuthenticatedUser, isAuthorized, editPlan) // 
 // // Tasks
 router.route("/task").post(isAuthenticatedUser, getTask) // display task information to everyone
 router.route("/task/getall").post(isAuthenticatedUser, allTasks) // display kanban board for all users
-router.route("/Task/create").post(isAuthenticatedUser, isAuthorized, createTask)
+router.route("/task/create").post(isAuthenticatedUser, createTask)
 
 // router.route("/task/note").post(isAuthenticatedUser, noteTask) // edit notes only
 router.route("/task/promote").post(isAuthenticatedUser, promoteTask) // promote task and edit notes
