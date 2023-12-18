@@ -15,7 +15,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role"
+      unauth: "role",
     })
   }
 
@@ -23,7 +23,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   if (!Task_name) {
     return res.json({
       success: false,
-      message: "required"
+      message: "required",
     })
   }
 
@@ -36,7 +36,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      message: "conflict"
+      message: "conflict",
     })
 
   // get current timestamp
@@ -55,7 +55,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   const newNote = stamp + createMsg
 
   // create date
-  const currentdate = `${day}-${month}-${year}`
+  const currentdate = `${day}/${month}/${year}`
 
   // insert
   querystr = "INSERT INTO task (`Task_name`,`Task_description`,`Task_id`,`Task_app_Acronym`,`Task_creator`,`Task_owner`,`Task_state`,`Task_createDate`,`Task_notes`) VALUES (?,?,?,?,?,?,'Open',?,?)"
@@ -69,7 +69,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 // post /task
@@ -81,7 +81,7 @@ exports.getTask = catchAsyncErrors(async (req, res, next) => {
   const result = await executeQuery(querystr, values)
   // return result
   res.json({
-    taskData: result[0]
+    taskData: result[0],
   })
 })
 // post /task/getall
@@ -94,7 +94,7 @@ exports.allTasks = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    tasksData
+    tasksData,
   })
 })
 
@@ -192,11 +192,11 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     default:
       return res.json({
-        error: "Internal Server Error"
+        error: "Internal Server Error",
       })
   }
 
@@ -208,7 +208,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role"
+      unauth: "role",
     })
   }
 
@@ -255,7 +255,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   // return result
   return res.json({
     success: true,
-    tasknote: newNote
+    tasknote: newNote,
   })
 })
 // post /task/demote
@@ -269,11 +269,11 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   switch (Task_state) {
     case "Open":
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     case "Todolist":
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     case "Doing":
       newState = "Todolist"
@@ -285,11 +285,11 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     default:
       return res.json({
-        error: "Internal Server Error"
+        error: "Internal Server Error",
       })
   }
 
@@ -301,7 +301,7 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role"
+      unauth: "role",
     })
   }
 
@@ -348,7 +348,7 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   // return result
   return res.json({
     success: true,
-    tasknote: newNote
+    tasknote: newNote,
   })
 })
 // post /task/edit
@@ -373,11 +373,11 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     default:
       return res.json({
-        error: "Internal Server Error"
+        error: "Internal Server Error",
       })
   }
 
@@ -389,7 +389,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role"
+      unauth: "role",
     })
   }
 
@@ -417,7 +417,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   if (req.body.Task_plan) {
     if (Task_state !== "Open" && Task_state !== "Done") {
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     }
     // plan note
@@ -438,6 +438,6 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   // return result
   return res.json({
     success: true,
-    tasknote: newNote
+    tasknote: newNote,
   })
 })
