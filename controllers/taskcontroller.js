@@ -90,7 +90,7 @@ exports.getTask = catchAsyncErrors(async (req, res, next) => {
   }
   const convertedMatches = matches.map(match => {
     const utcDatetime = new Date(match[1])
-    const localDatetime = utcDatetime.toLocaleString("en-US", options) // Adjust options as needed
+    const localDatetime = utcDatetime.toLocaleString("en-GB", options) // Adjust options as needed
     return localDatetime
   })
   // Replace the original datetime strings with the converted ones
@@ -119,7 +119,8 @@ exports.allTasks = catchAsyncErrors(async (req, res, next) => {
 // post /task/promote
 exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   // promotes, adds promote note, add custom note if any
-  const { Task_note = "", Task_id, Task_state, Task_app_Acronym } = req.body
+  const { Task_note = "", Task_id, Task_state, Task_app_Acronym, selectedplan } = req.body
+  var Task_plan = selectedplan ? selectedplan : null
 
   // permission switch case
   let newState
@@ -167,7 +168,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   const timestamp = new Date().toISOString()
 
   const stamp = `[${timestamp}] ${req.user} (${Task_state}): `
-  const newMsg = `${Task_note}\n`
+  const newMsg = `${Task_note}\n\n`
 
   // get old task info, maybe dunnid query
   querystr = "SELECT * FROM task WHERE Task_id = ?"
@@ -181,32 +182,36 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
 
   // optional plan change
   var planNote = ""
-  if (req.body.Task_plan) {
+  if (oldPlan !== Task_plan) {
+    console.log("plan changed")
+    if (Task_state !== "Open" && Task_state !== "Done") {
+      return res.json({
+        unauth: "role"
+      })
+    }
+
     // plan note
-    planNote = oldPlan ? `Task plan changed from ${oldPlan} to ${req.body.Task_plan}. ` : `Added new Task plan: ${req.body.Task_plan}. `
-    values = [req.body.Task_plan]
-  } else {
-    values = []
+    planNote = oldPlan ? (Task_plan ? `Task plan changed from ${oldPlan} to ${Task_plan}. ` : `Task plan removed. `) : `Added new Task plan: ${Task_plan}. `
   }
 
   // concat
   const newNote = stamp + planNote + promotemsg + newMsg + oldNote
 
   // update database
-  querystr = `UPDATE task SET ${req.body.Task_plan && "Task_plan = ?,"} Task_note = ?,Task_state = ? WHERE Task_id = ?`
-  values.push(newNote, newState, Task_id)
+  querystr = `UPDATE task SET Task_plan = ?, Task_notes = ?, Task_state =?, Task_owner = ? WHERE Task_id = ?`
+  values = [Task_plan, newNote, newState, req.user, Task_id]
 
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true,
-    tasknote: newNote
+    success: true
   })
 })
 // post /task/demote
 exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   // promotes, adds promote note, add custom note if any
-  const { Task_note = "", Task_id, Task_state, Task_app_Acronym } = req.body
+  const { Task_note = "", Task_id, Task_state, Task_app_Acronym, selectedplan } = req.body
+  var Task_plan = selectedplan ? selectedplan : null
 
   // permission switch case
   let newState
@@ -254,9 +259,9 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   const timestamp = new Date().toISOString()
 
   const stamp = `[${timestamp}] ${req.user} (${Task_state}): `
-  const newMsg = `${Task_note}\n`
+  const newMsg = `${Task_note}\n\n`
 
-  // get old task info
+  // get old task info, maybe dunnid query
   querystr = "SELECT * FROM task WHERE Task_id = ?"
   values = [req.body.Task_id]
   result = await executeQuery(querystr, values)
@@ -268,28 +273,32 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
 
   // optional plan change
   var planNote = ""
-  if (req.body.Task_plan) {
+  if (oldPlan !== Task_plan) {
+    console.log("plan changed")
+    if (Task_state !== "Done") {
+      return res.json({
+        unauth: "role"
+      })
+    }
+
     // plan note
-    planNote = oldPlan ? `Task plan changed from ${oldPlan} to ${req.body.Task_plan}. ` : `Added new Task plan: ${req.body.Task_plan}. `
-    values = [req.body.Task_plan]
-  } else {
-    values = []
+    planNote = oldPlan ? (Task_plan ? `Task plan changed from ${oldPlan} to ${Task_plan}. ` : `Task plan removed. `) : `Added new Task plan: ${Task_plan}. `
   }
 
   // concat
   const newNote = stamp + planNote + demotemsg + newMsg + oldNote
 
   // update database
-  querystr = `UPDATE task SET ${req.body.Task_plan && "Task_plan = ?,"} Task_note = ?,Task_state = ? WHERE Task_id = ?`
-  values.push(newNote, newState, Task_id)
+  querystr = `UPDATE task SET Task_plan = ?, Task_notes = ?, Task_state =?, Task_owner = ? WHERE Task_id = ?`
+  values = [Task_plan, newNote, newState, req.user, Task_id]
 
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true,
-    tasknote: newNote
+    success: true
   })
 })
+
 // post /task/edit
 exports.editTask = catchAsyncErrors(async (req, res, next) => {
   // promotes, adds promote note, add custom note if any
@@ -384,7 +393,6 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   // return result
   return res.json({
     success: true
-    // tasknote: newNote
   })
 })
 
