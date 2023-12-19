@@ -43,7 +43,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   const timestamp = new Date()
 
   const stamp = `[${timestamp.toISOString()}] ${req.user} (Open): `
-  const createMsg = `Task created.\n`
+  const createMsg = `Task created.`
 
   // concat
   const newNote = stamp + createMsg
@@ -201,6 +201,10 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   querystr = `UPDATE task SET Task_plan = ?, Task_notes = ?, Task_state =?, Task_owner = ? WHERE Task_id = ?`
   values = [Task_plan, newNote, newState, req.user, Task_id]
 
+  // send email
+  if (newState === "Done") {
+  }
+
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
@@ -268,7 +272,7 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   const oldNote = result[0].Task_notes
   const oldPlan = result[0].Task_plan
 
-  // promote msg
+  // demote msg
   const demotemsg = `Task demoted from "${Task_state}" to "${newState}". `
 
   // optional plan change
