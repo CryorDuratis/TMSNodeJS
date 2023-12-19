@@ -15,7 +15,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role",
+      unauth: "role"
     })
   }
 
@@ -23,7 +23,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   if (!Task_name) {
     return res.json({
       success: false,
-      message: "required",
+      message: "required"
     })
   }
 
@@ -36,26 +36,20 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      message: "conflict",
+      message: "conflict"
     })
 
   // get current timestamp
-  const timestamp = new Date().toISOString()
-  const date = timestamp.split("T")[0]
-  const year = date.split("-")[0]
-  const month = date.split("-")[1]
-  const day = date.split("-")[2]
-  const time = timestamp.split("T")[1]
-  const noteTimestamp = `${day}/${month}/${year} ${time}`
+  const timestamp = new Date()
 
-  const stamp = `[${noteTimestamp}] ${req.user} (Open): `
+  const stamp = `[${timestamp.toISOString()}] ${req.user} (Open): `
   const createMsg = `Task created.\n`
 
   // concat
   const newNote = stamp + createMsg
 
   // create date
-  const currentdate = `${day}/${month}/${year}`
+  const currentdate = timestamp.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
 
   // insert
   querystr = "INSERT INTO task (`Task_name`,`Task_description`,`Task_id`,`Task_app_Acronym`,`Task_creator`,`Task_owner`,`Task_state`,`Task_createDate`,`Task_notes`) VALUES (?,?,?,?,?,?,'Open',?,?)"
@@ -69,7 +63,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   return res.json({
-    success: true,
+    success: true
   })
 })
 // post /task
@@ -79,9 +73,33 @@ exports.getTask = catchAsyncErrors(async (req, res, next) => {
   var values = [req.body.Task_id]
 
   const result = await executeQuery(querystr, values)
+
+  // convert notes to local time
+  const datetimeRegex = /\[(.*?)\]/g
+  // Find all matches in the long text
+  const matches = [...result[0].Task_notes.matchAll(datetimeRegex)]
+  // Convert each match to local time
+  const options = {
+    timeZone: "Asia/Singapore",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  }
+  const convertedMatches = matches.map(match => {
+    const utcDatetime = new Date(match[1])
+    const localDatetime = utcDatetime.toLocaleString("en-US", options) // Adjust options as needed
+    return localDatetime
+  })
+  // Replace the original datetime strings with the converted ones
+  const taskDatanotes = result[0].Task_notes.replace(datetimeRegex, () => `[${convertedMatches.shift()}]`)
+
   // return result
   res.json({
     taskData: result[0],
+    taskDatanotes
   })
 })
 // post /task/getall
@@ -94,7 +112,7 @@ exports.allTasks = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    tasksData,
+    tasksData
   })
 })
 
@@ -135,15 +153,9 @@ exports.allTasks = catchAsyncErrors(async (req, res, next) => {
 //   }
 
 //   // get current timestamp
-//   const timestamp = new Date().toISOString();
-//   const date = timestamp.split("T")[0]
-//   const year = date.split("-")[0]
-//   const month = date.split("-")[1]
-//   const day = date.split("-")[2]
-//   const time = timestamp.split("T")[1]
-//   const noteTimestamp = `${day}/${month}/${year} ${time}`
+//   const timestamp = new Date().toISOString()
 
-//   const stamp = `[${noteTimestamp}] ${req.user} (${Task_state}): `
+//   const stamp = `[${timestamp}] ${req.user} (${Task_state}): `
 //   const newMsg = `${Task_note}\n`
 
 //   // get old note
@@ -192,11 +204,11 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     default:
       return res.json({
-        error: "Internal Server Error",
+        error: "Internal Server Error"
       })
   }
 
@@ -208,20 +220,14 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role",
+      unauth: "role"
     })
   }
 
   // get current timestamp
   const timestamp = new Date().toISOString()
-  const date = timestamp.split("T")[0]
-  const year = date.split("-")[0]
-  const month = date.split("-")[1]
-  const day = date.split("-")[2]
-  const time = timestamp.split("T")[1]
-  const noteTimestamp = `${day}/${month}/${year} ${time}`
 
-  const stamp = `[${noteTimestamp}] ${req.user} (${Task_state}): `
+  const stamp = `[${timestamp}] ${req.user} (${Task_state}): `
   const newMsg = `${Task_note}\n`
 
   // get old task info, maybe dunnid query
@@ -255,7 +261,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   // return result
   return res.json({
     success: true,
-    tasknote: newNote,
+    tasknote: newNote
   })
 })
 // post /task/demote
@@ -269,11 +275,11 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   switch (Task_state) {
     case "Open":
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     case "Todolist":
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     case "Doing":
       newState = "Todolist"
@@ -285,11 +291,11 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     default:
       return res.json({
-        error: "Internal Server Error",
+        error: "Internal Server Error"
       })
   }
 
@@ -301,20 +307,14 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role",
+      unauth: "role"
     })
   }
 
   // get current timestamp
   const timestamp = new Date().toISOString()
-  const date = timestamp.split("T")[0]
-  const year = date.split("-")[0]
-  const month = date.split("-")[1]
-  const day = date.split("-")[2]
-  const time = timestamp.split("T")[1]
-  const noteTimestamp = `${day}/${month}/${year} ${time}`
 
-  const stamp = `[${noteTimestamp}] ${req.user} (${Task_state}): `
+  const stamp = `[${timestamp}] ${req.user} (${Task_state}): `
   const newMsg = `${Task_note}\n`
 
   // get old task info
@@ -348,7 +348,7 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   // return result
   return res.json({
     success: true,
-    tasknote: newNote,
+    tasknote: newNote
   })
 })
 // post /task/edit
@@ -373,11 +373,11 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     default:
       return res.json({
-        error: "Internal Server Error",
+        error: "Internal Server Error"
       })
   }
 
@@ -389,20 +389,14 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role",
+      unauth: "role"
     })
   }
 
   // get current timestamp
   const timestamp = new Date().toISOString()
-  const date = timestamp.split("T")[0]
-  const year = date.split("-")[0]
-  const month = date.split("-")[1]
-  const day = date.split("-")[2]
-  const time = timestamp.split("T")[1]
-  const noteTimestamp = `${day}/${month}/${year} ${time}`
 
-  const stamp = `[${noteTimestamp}] ${req.user} (${Task_state}): `
+  const stamp = `[${timestamp}] ${req.user} (${Task_state}): `
   const newMsg = `${Task_note}\n`
 
   // get old task info
@@ -417,7 +411,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   if (req.body.Task_plan) {
     if (Task_state !== "Open" && Task_state !== "Done") {
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     }
     // plan note
@@ -438,6 +432,6 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   // return result
   return res.json({
     success: true,
-    tasknote: newNote,
+    tasknote: newNote
   })
 })
