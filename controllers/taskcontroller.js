@@ -337,7 +337,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   const timestamp = new Date().toISOString()
 
   const stamp = `[${timestamp}] ${req.user} (${Task_state}): `
-  const newMsg = `${Task_note} \n`
+  const newMsg = `${Task_note} \n\n`
 
   // get old task info
   querystr = "SELECT * FROM task WHERE Task_id = ?"
@@ -376,8 +376,8 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   console.log("newnote: ", newNote)
 
   // update database
-  querystr = `UPDATE task SET Task_plan = ?, Task_notes = ? WHERE Task_id = ?`
-  values = [Task_plan, newNote, Task_id]
+  querystr = `UPDATE task SET Task_plan = ?, Task_notes = ?, Task_owner = ? WHERE Task_id = ?`
+  values = [Task_plan, newNote, req.user, Task_id]
   console.log("query is ", querystr)
 
   result = await executeQuery(querystr, values)
