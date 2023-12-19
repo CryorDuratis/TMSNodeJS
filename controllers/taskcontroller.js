@@ -2,6 +2,7 @@
 const { executeQuery } = require("../config/db")
 const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 const { Checkgroup } = require("./checkGroup")
+const sendEmail = require("./sendEmail")
 
 // post /task/create
 exports.createTask = catchAsyncErrors(async (req, res, next) => {
@@ -15,7 +16,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role"
+      unauth: "role",
     })
   }
 
@@ -23,7 +24,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   if (!Task_name) {
     return res.json({
       success: false,
-      message: "required"
+      message: "required",
     })
   }
 
@@ -36,7 +37,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      message: "conflict"
+      message: "conflict",
     })
 
   // get current timestamp
@@ -63,7 +64,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 // post /task
@@ -86,9 +87,9 @@ exports.getTask = catchAsyncErrors(async (req, res, next) => {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit"
+    second: "2-digit",
   }
-  const convertedMatches = matches.map(match => {
+  const convertedMatches = matches.map((match) => {
     const utcDatetime = new Date(match[1])
     const localDatetime = utcDatetime.toLocaleString("en-GB", options) // Adjust options as needed
     return localDatetime
@@ -99,7 +100,7 @@ exports.getTask = catchAsyncErrors(async (req, res, next) => {
   // return result
   res.json({
     taskData: result[0],
-    taskDatanotes
+    taskDatanotes,
   })
 })
 // post /task/getall
@@ -112,7 +113,7 @@ exports.allTasks = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    tasksData
+    tasksData,
   })
 })
 
@@ -144,11 +145,11 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     default:
       return res.json({
-        error: "Internal Server Error"
+        error: "Internal Server Error",
       })
   }
 
@@ -160,7 +161,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role"
+      unauth: "role",
     })
   }
 
@@ -186,7 +187,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
     console.log("plan changed")
     if (Task_state !== "Open" && Task_state !== "Done") {
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     }
 
@@ -203,12 +204,110 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
 
   // send email
   if (newState === "Done") {
+    const applink = `http://localhost:3000/apps/${Task_app_Acronym}`
+
+    const text = `Dear User,\n\n
+
+    The task ${result[0].Task_name} has been promoted to the "Done" state.\n\n
+    
+    Task Details:\n
+    Task Name: ${result[0].Task_name}\n
+    Assigned To: ${result[0].Task_owner}\n\n
+
+    Please view the task at ${applink}\n
+    Thank you for your attention.\n\n
+    
+    Best Regards,\n
+    Your TMS Team `
+
+    const html = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Task Promotion Notification</title>
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          line-height: 1.6;
+          background-color: #f4f4f4;
+          padding: 20px;
+        }
+    
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          padding: 20px;
+          border-radius: 5px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    
+        h2 {
+          color: #333333;
+        }
+    
+        p {
+          color: #666666;
+        }
+    
+        .task-details {
+          margin-top: 20px;
+        }
+    
+        .button {
+          display: inline-block;
+          padding: 10px 20px;
+          background-color: #3498db;
+          color: #ffffff;
+          text-decoration: none;
+          border-radius: 3px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h2>Task Promotion Notification</h2>
+        <p>Dear User,</p>
+        <p>The task "<strong>${result[0].Task_name}</strong>" has been promoted to the "Done" state.</p>
+    
+        <div class="task-details">
+          <strong>Task Details:</strong>
+          <ul>
+            <li><strong>Task Name:</strong> ${result[0].Task_name}</li>
+            <li><strong>Assigned To:</strong> ${result[0].Task_owner}</li>
+          </ul>
+        </div>
+    
+        <p>Thank you for your attention.</p>
+        <p>Best Regards,<br>Your TMS Team</p>
+    
+        <div class="button-container">
+          <a href="${applink}" class="button">View Task</a>
+        </div>
+      </div>
+    </body>
+    </html>`
+
+    console.log("Send an email")
+    // sendEmail({
+    //   to: "user@tms.com",
+    //   subject: "A task is done and needs your attention!",
+    //   text,
+    //   html,
+    // })
+    //   .then(() => {
+    //     console.log("Send email completed")
+    //   })
+    //   .catch((error) => {
+    //     console.log("error: ", error)
+    //   })
   }
 
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 // post /task/demote
@@ -223,11 +322,11 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   switch (Task_state) {
     case "Open":
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     case "Todolist":
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     case "Doing":
       newState = "Todolist"
@@ -239,11 +338,11 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     default:
       return res.json({
-        error: "Internal Server Error"
+        error: "Internal Server Error",
       })
   }
 
@@ -255,7 +354,7 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role"
+      unauth: "role",
     })
   }
 
@@ -281,7 +380,7 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
     console.log("plan changed")
     if (Task_state !== "Done") {
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     }
 
@@ -299,7 +398,7 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 
@@ -326,11 +425,11 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     default:
       return res.json({
-        error: "Internal Server Error"
+        error: "Internal Server Error",
       })
   }
 
@@ -342,7 +441,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role"
+      unauth: "role",
     })
   }
 
@@ -363,7 +462,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   if (Task_note === "" && oldPlan === Task_plan) {
     console.log("no note or plan change detected")
     return res.json({
-      success: false
+      success: false,
     })
   }
 
@@ -373,7 +472,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
     console.log("plan changed")
     if (Task_state !== "Open" && Task_state !== "Done") {
       return res.json({
-        unauth: "role"
+        unauth: "role",
       })
     }
 
@@ -396,7 +495,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true
+    success: true,
   })
 })
 
