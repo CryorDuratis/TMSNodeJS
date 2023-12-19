@@ -174,7 +174,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   querystr = "SELECT * FROM task WHERE Task_id = ?"
   values = [req.body.Task_id]
   result = await executeQuery(querystr, values)
-  const oldNote = result[0].Task_note
+  const oldNote = result[0].Task_notes
   const oldPlan = result[0].Task_plan
 
   // promote msg
@@ -265,7 +265,7 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   querystr = "SELECT * FROM task WHERE Task_id = ?"
   values = [req.body.Task_id]
   result = await executeQuery(querystr, values)
-  const oldNote = result[0].Task_note
+  const oldNote = result[0].Task_notes
   const oldPlan = result[0].Task_plan
 
   // promote msg
