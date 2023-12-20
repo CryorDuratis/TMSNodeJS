@@ -4,13 +4,13 @@ const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 
 // post /plan/create
 exports.createPlan = catchAsyncErrors(async (req, res, next) => {
-  const { Plan_app_Acronym, Plan_MVP_name, Plan_startDate = null, Plan_endDate = null } = req.body
+  const { Plan_app_Acronym, Plan_MVP_name, Plan_colour, Plan_startDate = null, Plan_endDate = null } = req.body
 
   // required field
   if (!Plan_MVP_name) {
     return res.json({
       success: false,
-      message: "required",
+      message: "required"
     })
   }
 
@@ -23,17 +23,17 @@ exports.createPlan = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      message: "conflict",
+      message: "conflict"
     })
 
   // insert
-  querystr = `INSERT INTO plan VALUES (?,?,?,?)`
-  values = [Plan_MVP_name, Plan_startDate, Plan_endDate, Plan_app_Acronym]
+  querystr = `INSERT INTO plan VALUES (?,?,?,?,?)`
+  values = [Plan_MVP_name, Plan_startDate, Plan_endDate, Plan_app_Acronym, Plan_colour]
   console.log("values inserted are ", values)
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true,
+    success: true
   })
 })
 // post /plan/edit
@@ -42,7 +42,7 @@ exports.editPlan = catchAsyncErrors(async (req, res, next) => {
 
   const fields = Object.keys(rest)
   const values = Object.values(rest)
-  var setClause = fields.map((field) => `\`${field}\` = ?`).join(", ")
+  var setClause = fields.map(field => `\`${field}\` = ?`).join(", ")
 
   var querystr = `UPDATE plan SET ${setClause} WHERE Plan_MVP_name = ? AND Plan_app_Acronym = ?`
 
@@ -51,7 +51,7 @@ exports.editPlan = catchAsyncErrors(async (req, res, next) => {
   const planData = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true,
+    success: true
   })
 })
 // post /plan
@@ -65,7 +65,7 @@ exports.getPlan = catchAsyncErrors(async (req, res, next) => {
   const result = await executeQuery(querystr, values)
   // return result
   res.json({
-    planData: result[0],
+    planData: result[0]
   })
 })
 // post /plan/getAll
@@ -78,6 +78,6 @@ exports.allPlans = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    plansData,
+    plansData
   })
 })
