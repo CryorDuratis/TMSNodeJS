@@ -76,7 +76,7 @@ exports.getApp = catchAsyncErrors(async (req, res, next) => {
 // post /app/getAll
 exports.allApps = catchAsyncErrors(async (req, res, next) => {
   // get all app info
-  var querystr = "SELECT `App_Acronym`,`App_startDate`,`App_endDate` FROM application ORDER BY `App_endDate` DESC"
+  var querystr = "SELECT * FROM application ORDER BY `App_endDate` DESC"
   var values = []
 
   const appsData = await executeQuery(querystr, values)
