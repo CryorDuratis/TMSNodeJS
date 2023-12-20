@@ -16,7 +16,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role",
+      unauth: "role"
     })
   }
 
@@ -24,7 +24,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   if (!Task_name) {
     return res.json({
       success: false,
-      message: "required",
+      message: "required"
     })
   }
 
@@ -37,7 +37,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
   if (result.length > 0)
     return res.json({
       success: false,
-      message: "conflict",
+      message: "conflict"
     })
 
   // get current timestamp
@@ -64,7 +64,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   return res.json({
-    success: true,
+    success: true
   })
 })
 // post /task
@@ -87,9 +87,9 @@ exports.getTask = catchAsyncErrors(async (req, res, next) => {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit",
+    second: "2-digit"
   }
-  const convertedMatches = matches.map((match) => {
+  const convertedMatches = matches.map(match => {
     const utcDatetime = new Date(match[1])
     const localDatetime = utcDatetime.toLocaleString("en-GB", options) // Adjust options as needed
     return localDatetime
@@ -100,7 +100,7 @@ exports.getTask = catchAsyncErrors(async (req, res, next) => {
   // return result
   res.json({
     taskData: result[0],
-    taskDatanotes,
+    taskDatanotes
   })
 })
 // post /task/getall
@@ -113,7 +113,7 @@ exports.allTasks = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   res.json({
-    tasksData,
+    tasksData
   })
 })
 
@@ -145,11 +145,11 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     default:
       return res.json({
-        error: "Internal Server Error",
+        error: "Internal Server Error"
       })
   }
 
@@ -161,7 +161,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role",
+      unauth: "role"
     })
   }
 
@@ -187,7 +187,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
     console.log("plan changed")
     if (Task_state !== "Open" && Task_state !== "Done") {
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     }
 
@@ -307,7 +307,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true,
+    success: true
   })
 })
 // post /task/demote
@@ -322,11 +322,11 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   switch (Task_state) {
     case "Open":
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     case "Todolist":
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     case "Doing":
       newState = "Todolist"
@@ -338,11 +338,11 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     default:
       return res.json({
-        error: "Internal Server Error",
+        error: "Internal Server Error"
       })
   }
 
@@ -354,7 +354,7 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role",
+      unauth: "role"
     })
   }
 
@@ -380,7 +380,7 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
     console.log("plan changed")
     if (Task_state !== "Done") {
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     }
 
@@ -398,10 +398,10 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true,
+    success: true
   })
 })
-
+exports.getapppermit
 // post /task/edit
 exports.editTask = catchAsyncErrors(async (req, res, next) => {
   // promotes, adds promote note, add custom note if any
@@ -425,11 +425,11 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
       break
     case "Closed":
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     default:
       return res.json({
-        error: "Internal Server Error",
+        error: "Internal Server Error"
       })
   }
 
@@ -441,7 +441,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   // check if user role matches app permits
   if (!Checkgroup(req.user, result[0])) {
     return res.json({
-      unauth: "role",
+      unauth: "role"
     })
   }
 
@@ -462,7 +462,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   if (Task_note === "" && oldPlan === Task_plan) {
     console.log("no note or plan change detected")
     return res.json({
-      success: false,
+      success: false
     })
   }
 
@@ -472,7 +472,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
     console.log("plan changed")
     if (Task_state !== "Open" && Task_state !== "Done") {
       return res.json({
-        unauth: "role",
+        unauth: "role"
       })
     }
 
@@ -484,9 +484,6 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   // concat
   const newNote = stamp + planNote + newMsg + oldNote
 
-  console.log("oldnote: ", oldNote)
-  console.log("newnote: ", newNote)
-
   // update database
   querystr = `UPDATE task SET Task_plan = ?, Task_notes = ?, Task_owner = ? WHERE Task_id = ?`
   values = [Task_plan, newNote, req.user, Task_id]
@@ -495,7 +492,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   result = await executeQuery(querystr, values)
   // return result
   return res.json({
-    success: true,
+    success: true
   })
 })
 

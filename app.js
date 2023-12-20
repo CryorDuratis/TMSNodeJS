@@ -16,7 +16,7 @@ const { getTask, allTasks, createTask, promoteTask, demoteTask, editTask } = req
 const app = express()
 
 // Uncaught exception error shuts down server here
-process.on("uncaughtException", (err) => {
+process.on("uncaughtException", err => {
   console.log(`Error: ${err.stack}`)
   console.log("Shutting down the server due to uncaught exception.")
   process.exit(1)
@@ -38,12 +38,12 @@ app.use((err, req, res, next) => {
   console.error(err.message)
   if (err && err.name === "TokenExpiredError") {
     return res.json({
-      error: "routenotfound",
+      error: "routenotfound"
     })
   } else {
     console.log(err)
     return res.json({
-      error: "Internal Server Error",
+      error: "Internal Server Error"
     })
   }
 })
@@ -89,7 +89,7 @@ router.route("/task/create").post(isAuthenticatedUser, createTask)
 // router.route("/task/note").post(isAuthenticatedUser, noteTask) // edit notes only
 router.route("/task/promote").post(isAuthenticatedUser, promoteTask) // promote task and edit notes
 router.route("/task/demote").post(isAuthenticatedUser, demoteTask) // demote task and edit notes and plan
-router.route("/task/edit").post(isAuthenticatedUser, editTask) // demote task ,notes and plan
+router.route("/task/edit").post(isAuthenticatedUser, editTask) // edit task: notes and plan
 
 // const newnote = "asjadlskjd"
 // if (req.body.note) {
@@ -103,7 +103,7 @@ app.use(router)
 // Route not found catch
 app.all("*", (req, res) => {
   res.json({
-    error: "route",
+    error: "route"
   })
 })
 
@@ -113,7 +113,7 @@ const server = app.listen(port, () => {
 })
 
 // Unhandled promise rejection error
-process.on("unhandledRejection", (err) => {
+process.on("unhandledRejection", err => {
   console.log(`Error: ${err.message}`)
   console.log("Shutting down the server due to unhandled promise rejection.")
   server.close(() => {
