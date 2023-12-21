@@ -30,17 +30,17 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
       })
     }
 
-    // check if task name is duplicate
-    querystr = `SELECT * FROM task WHERE Task_name = ? AND Task_app_Acronym = ?`
-    values = [Task_name, Task_app_Acronym]
+    // // check if task name is duplicate
+    // querystr = `SELECT * FROM task WHERE Task_name = ? AND Task_app_Acronym = ?`
+    // values = [Task_name, Task_app_Acronym]
 
-    result = await executeQuery(querystr, values)
-    // return result
-    if (result.length > 0)
-      return res.json({
-        success: false,
-        message: "conflict"
-      })
+    // result = await executeQuery(querystr, values)
+    // // return result
+    // if (result.length > 0)
+    //   return res.json({
+    //     success: false,
+    //     message: "conflict"
+    //   })
 
     // get task id
     querystr = `SELECT App_Rnumber FROM application WHERE App_Acronym = ?`
@@ -209,7 +209,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   var planNote = ""
   if (oldPlan !== Task_plan) {
     console.log("plan changed")
-    if (Task_state !== "Open" && Task_state !== "Done") {
+    if (Task_state !== "Open") {
       console.log("wrong state")
       return res.json({
         unauth: "role"
@@ -228,7 +228,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   values = [Task_plan, newNote, newState, req.user, Task_id]
 
   // send email
-  if (newState === "Done") {
+  if (newState === "Done" && false) {
     const applink = `http://localhost:3000/apps/${Task_app_Acronym}`
 
     const text = `Dear User,\n\n
@@ -315,20 +315,19 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
     </html>`
 
     console.log("Send an email")
-    if (true) {
-      sendEmail({
-        to: "user@tms.com",
-        subject: "A task is done and needs your attention!",
-        text,
-        html
+
+    sendEmail({
+      to: "user@tms.com",
+      subject: "A task is done and needs your attention!",
+      text,
+      html
+    })
+      .then(() => {
+        console.log("Send email completed")
       })
-        .then(() => {
-          console.log("Send email completed")
-        })
-        .catch(error => {
-          console.log("error: ", error)
-        })
-    }
+      .catch(error => {
+        console.log("error: ", error)
+      })
   }
 
   result = await executeQuery(querystr, values)
@@ -498,7 +497,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   var planNote = ""
   if (oldPlan !== Task_plan) {
     console.log("plan changed")
-    if (Task_state !== "Open" && Task_state !== "Done") {
+    if (Task_state !== "Open") {
       return res.json({
         unauth: "role"
       })
