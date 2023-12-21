@@ -313,18 +313,20 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
     </html>`
 
     console.log("Send an email")
-    // sendEmail({
-    //   to: "user@tms.com",
-    //   subject: "A task is done and needs your attention!",
-    //   text,
-    //   html,
-    // })
-    //   .then(() => {
-    //     console.log("Send email completed")
-    //   })
-    //   .catch((error) => {
-    //     console.log("error: ", error)
-    //   })
+    if (true) {
+      sendEmail({
+        to: "user@tms.com",
+        subject: "A task is done and needs your attention!",
+        text,
+        html
+      })
+        .then(() => {
+          console.log("Send email completed")
+        })
+        .catch(error => {
+          console.log("error: ", error)
+        })
+    }
   }
 
   result = await executeQuery(querystr, values)
