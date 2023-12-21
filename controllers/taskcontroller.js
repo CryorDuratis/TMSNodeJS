@@ -6,7 +6,7 @@ const sendEmail = require("./sendEmail")
 
 // post /task/create
 exports.createTask = catchAsyncErrors(async (req, res, next) => {
-  const { Task_name, Task_description = null, Task_id, Task_app_Acronym } = req.body.formData
+  const { Task_name, Task_description = null, Task_app_Acronym } = req.body.formData
 
   // get app permit
   var querystr = `SELECT App_permit_Create FROM application WHERE App_Acronym = ?`
@@ -40,6 +40,12 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
       message: "conflict"
     })
 
+  // get task id
+  querystr = `SELECT App_Rnumber FROM application WHERE App_Acronym = ?`
+  values = [Task_app_Acronym]
+  result = await executeQuery(querystr, values)
+  const Task_id = Task_app_Acronym + "_" + result[0].App_Rnumber
+
   // get current timestamp
   const timestamp = new Date()
 
@@ -64,7 +70,8 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
 
   // return result
   return res.json({
-    success: true
+    success: true,
+    taskid: Task_id
   })
 })
 // post /task
@@ -74,6 +81,13 @@ exports.getTask = catchAsyncErrors(async (req, res, next) => {
   var values = [req.body.Task_id]
 
   const result = await executeQuery(querystr, values)
+
+  // if no tasks
+  if (result.length < 1) {
+    return res.json({
+      error: true
+    })
+  }
 
   // convert notes to local time
   const datetimeRegex = /\[(.*?)\]/g
