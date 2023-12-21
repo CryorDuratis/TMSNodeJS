@@ -16,6 +16,13 @@ exports.createApp = catchAsyncErrors(async (req, res, next) => {
       })
     }
 
+    // check if rnumber is positive integer
+    if (App_Rnumber < 0 || !Number.isInteger(parseInt(App_Rnumber))) {
+      return res.json({
+        error: "Invalid input."
+      })
+    }
+
     // check if appacro is duplicate
     var querystr = `SELECT App_Acronym FROM application WHERE App_Acronym = ?`
     var values = [App_Acronym]
