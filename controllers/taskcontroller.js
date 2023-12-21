@@ -15,7 +15,7 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
     var result = await executeQuery(querystr, values)
 
     // check if user role matches app permits
-    const auth = await Checkgroup(req.user, result[0])
+    const auth = await Checkgroup(req.user, result[0].App_permit_Create)
     if (!auth) {
       return res.json({
         unauth: "role"
@@ -181,8 +181,9 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   var result = await executeQuery(querystr, values)
 
   // check if user role matches app permits
-  const auth = await Checkgroup(req.user, result[0])
+  const auth = await Checkgroup(req.user, result[0][appPermit])
   if (!auth) {
+    console.log("does not match app permit")
     return res.json({
       unauth: "role"
     })
@@ -209,6 +210,7 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   if (oldPlan !== Task_plan) {
     console.log("plan changed")
     if (Task_state !== "Open" && Task_state !== "Done") {
+      console.log("wrong state")
       return res.json({
         unauth: "role"
       })
@@ -377,7 +379,7 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   var result = await executeQuery(querystr, values)
 
   // check if user role matches app permits
-  const auth = await Checkgroup(req.user, result[0])
+  const auth = await Checkgroup(req.user, result[0][appPermit])
   if (!auth) {
     return res.json({
       unauth: "role"
@@ -464,7 +466,7 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   var result = await executeQuery(querystr, values)
 
   // check if user role matches app permits
-  const auth = await Checkgroup(req.user, result[0])
+  const auth = await Checkgroup(req.user, result[0][appPermit])
   if (!auth) {
     return res.json({
       unauth: "role"
