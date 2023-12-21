@@ -4,37 +4,43 @@ const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 
 // post /plan/create
 exports.createPlan = catchAsyncErrors(async (req, res, next) => {
-  const { Plan_app_Acronym, Plan_MVP_name, Plan_colour, Plan_startDate = null, Plan_endDate = null } = req.body
+  try {
+    const { Plan_app_Acronym, Plan_MVP_name, Plan_colour, Plan_startDate = null, Plan_endDate = null } = req.body
 
-  // required field
-  if (!Plan_MVP_name) {
+    // required field
+    if (!Plan_MVP_name) {
+      return res.json({
+        success: false,
+        message: "required"
+      })
+    }
+
+    // check if plan name is duplicate
+    var querystr = `SELECT * FROM plan WHERE Plan_MVP_name = ? AND Plan_app_Acronym = ?`
+    var values = [Plan_MVP_name, Plan_app_Acronym]
+
+    var result = await executeQuery(querystr, values)
+    // return result
+    if (result.length > 0)
+      return res.json({
+        success: false,
+        message: "conflict"
+      })
+
+    // insert
+    querystr = `INSERT INTO plan VALUES (?,?,?,?,?)`
+    values = [Plan_MVP_name, Plan_startDate, Plan_endDate, Plan_app_Acronym, Plan_colour]
+    console.log("values inserted are ", values)
+    result = await executeQuery(querystr, values)
+    // return result
     return res.json({
-      success: false,
-      message: "required"
+      success: true
+    })
+  } catch (e) {
+    return res.json({
+      error: "Plan name is too long, please try again."
     })
   }
-
-  // check if plan name is duplicate
-  var querystr = `SELECT * FROM plan WHERE Plan_MVP_name = ? AND Plan_app_Acronym = ?`
-  var values = [Plan_MVP_name, Plan_app_Acronym]
-
-  var result = await executeQuery(querystr, values)
-  // return result
-  if (result.length > 0)
-    return res.json({
-      success: false,
-      message: "conflict"
-    })
-
-  // insert
-  querystr = `INSERT INTO plan VALUES (?,?,?,?,?)`
-  values = [Plan_MVP_name, Plan_startDate, Plan_endDate, Plan_app_Acronym, Plan_colour]
-  console.log("values inserted are ", values)
-  result = await executeQuery(querystr, values)
-  // return result
-  return res.json({
-    success: true
-  })
 })
 // post /plan/edit
 exports.editPlan = catchAsyncErrors(async (req, res, next) => {

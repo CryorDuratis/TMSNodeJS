@@ -15,7 +15,8 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
     var result = await executeQuery(querystr, values)
 
     // check if user role matches app permits
-    if (!Checkgroup(req.user, result[0])) {
+    const auth = await Checkgroup(req.user, result[0])
+    if (!auth) {
       return res.json({
         unauth: "role"
       })
@@ -180,7 +181,8 @@ exports.promoteTask = catchAsyncErrors(async (req, res, next) => {
   var result = await executeQuery(querystr, values)
 
   // check if user role matches app permits
-  if (!Checkgroup(req.user, result[0])) {
+  const auth = await Checkgroup(req.user, result[0])
+  if (!auth) {
     return res.json({
       unauth: "role"
     })
@@ -373,7 +375,8 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
   var result = await executeQuery(querystr, values)
 
   // check if user role matches app permits
-  if (!Checkgroup(req.user, result[0])) {
+  const auth = await Checkgroup(req.user, result[0])
+  if (!auth) {
     return res.json({
       unauth: "role"
     })
@@ -422,7 +425,6 @@ exports.demoteTask = catchAsyncErrors(async (req, res, next) => {
     success: true
   })
 })
-exports.getapppermit
 // post /task/edit
 exports.editTask = catchAsyncErrors(async (req, res, next) => {
   // promotes, adds promote note, add custom note if any
@@ -460,7 +462,8 @@ exports.editTask = catchAsyncErrors(async (req, res, next) => {
   var result = await executeQuery(querystr, values)
 
   // check if user role matches app permits
-  if (!Checkgroup(req.user, result[0])) {
+  const auth = await Checkgroup(req.user, result[0])
+  if (!auth) {
     return res.json({
       unauth: "role"
     })
