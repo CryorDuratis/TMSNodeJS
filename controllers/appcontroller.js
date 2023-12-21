@@ -4,38 +4,45 @@ const catchAsyncErrors = require("../errorhandling/catchAsyncErrors")
 
 // post /app/create
 exports.createApp = catchAsyncErrors(async (req, res, next) => {
-  const { App_Acronym, App_Rnumber, App_startDate = null, App_endDate = null, App_Description = null } = req.body.formData
-  const { createPermit, openPermit, todolistPermit, doingPermit, donePermit } = req.body
+  try {
+    const { App_Acronym, App_Rnumber, App_startDate = null, App_endDate = null, App_Description = null } = req.body.formData
+    const { createPermit, openPermit, todolistPermit, doingPermit, donePermit } = req.body
 
-  // required fields
-  if (!App_Acronym || !App_Rnumber) {
+    // required fields
+    if (!App_Acronym || !App_Rnumber) {
+      return res.json({
+        success: false,
+        message: "required"
+      })
+    }
+
+    // check if appacro is duplicate
+    var querystr = `SELECT App_Acronym FROM application WHERE App_Acronym = ?`
+    var values = [App_Acronym]
+
+    var result = await executeQuery(querystr, values)
+    // return result
+    if (result.length > 0)
+      return res.json({
+        success: false,
+        message: "conflict"
+      })
+
+    // insert
+    querystr = `INSERT INTO application VALUES (?,?,?,?,?,?,?,?,?,?)`
+    values = [App_Acronym, App_Description, App_Rnumber, App_startDate, App_endDate, openPermit, todolistPermit, doingPermit, donePermit, createPermit]
+    console.log("values inserted are ", values)
+    result = await executeQuery(querystr, values)
+    // return result
     return res.json({
-      success: false,
-      message: "required"
+      success: true
+    })
+  } catch (e) {
+    console.log(e)
+    return res.json({
+      error: "The value you entered is too long, please try again."
     })
   }
-
-  // check if appacro is duplicate
-  var querystr = `SELECT App_Acronym FROM application WHERE App_Acronym = ?`
-  var values = [App_Acronym]
-
-  var result = await executeQuery(querystr, values)
-  // return result
-  if (result.length > 0)
-    return res.json({
-      success: false,
-      message: "conflict"
-    })
-
-  // insert
-  querystr = `INSERT INTO application VALUES (?,?,?,?,?,?,?,?,?,?)`
-  values = [App_Acronym, App_Description, App_Rnumber, App_startDate, App_endDate, openPermit, todolistPermit, doingPermit, donePermit, createPermit]
-  console.log("values inserted are ", values)
-  result = await executeQuery(querystr, values)
-  // return result
-  return res.json({
-    success: true
-  })
 })
 // post /app/edit
 exports.editApp = catchAsyncErrors(async (req, res, next) => {

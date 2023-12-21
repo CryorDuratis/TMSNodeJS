@@ -33,21 +33,6 @@ app.use(cors({ origin: "http://localhost:3000" }))
 app.use(bodyParser)
 app.use(cookieParser())
 
-// Error-handling middleware (defined after other routes and middleware)
-app.use((err, req, res, next) => {
-  console.error(err.message)
-  if (err && err.name === "TokenExpiredError") {
-    return res.json({
-      error: "routenotfound"
-    })
-  } else {
-    console.log(err)
-    return res.json({
-      error: "Internal Server Error"
-    })
-  }
-})
-
 // Router is initialized here
 const router = express.Router()
 
@@ -91,11 +76,20 @@ router.route("/task/promote").post(isAuthenticatedUser, promoteTask) // promote 
 router.route("/task/demote").post(isAuthenticatedUser, demoteTask) // demote task and edit notes and plan
 router.route("/task/edit").post(isAuthenticatedUser, editTask) // edit task: notes and plan
 
-// const newnote = "asjadlskjd"
-// if (req.body.note) {
-//   newnote += "msg: " + req.body.note
-// }
-// query(querystr, [newnote, taskid])
+// Error-handling middleware (defined after other routes and middleware)
+app.use((err, req, res, next) => {
+  console.error(err.message)
+  if (err && err.name === "TokenExpiredError") {
+    return res.json({
+      error: "routenotfound"
+    })
+  } else {
+    console.log(err)
+    return res.json({
+      error: "Internal Server Error"
+    })
+  }
+})
 
 // use router
 app.use(router)

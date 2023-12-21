@@ -6,73 +6,80 @@ const sendEmail = require("./sendEmail")
 
 // post /task/create
 exports.createTask = catchAsyncErrors(async (req, res, next) => {
-  const { Task_name, Task_description = null, Task_app_Acronym } = req.body.formData
+  try {
+    const { Task_name, Task_description = null, Task_app_Acronym } = req.body.formData
 
-  // get app permit
-  var querystr = `SELECT App_permit_Create FROM application WHERE App_Acronym = ?`
-  var values = [Task_app_Acronym]
-  var result = await executeQuery(querystr, values)
+    // get app permit
+    var querystr = `SELECT App_permit_Create FROM application WHERE App_Acronym = ?`
+    var values = [Task_app_Acronym]
+    var result = await executeQuery(querystr, values)
 
-  // check if user role matches app permits
-  if (!Checkgroup(req.user, result[0])) {
+    // check if user role matches app permits
+    if (!Checkgroup(req.user, result[0])) {
+      return res.json({
+        unauth: "role"
+      })
+    }
+
+    // check that task name is not null
+    if (!Task_name) {
+      return res.json({
+        success: false,
+        message: "required"
+      })
+    }
+
+    // check if task name is duplicate
+    querystr = `SELECT * FROM task WHERE Task_name = ? AND Task_app_Acronym = ?`
+    values = [Task_name, Task_app_Acronym]
+
+    result = await executeQuery(querystr, values)
+    // return result
+    if (result.length > 0)
+      return res.json({
+        success: false,
+        message: "conflict"
+      })
+
+    // get task id
+    querystr = `SELECT App_Rnumber FROM application WHERE App_Acronym = ?`
+    values = [Task_app_Acronym]
+    result = await executeQuery(querystr, values)
+    const Task_id = Task_app_Acronym + "_" + result[0].App_Rnumber
+
+    // get current timestamp
+    const timestamp = new Date()
+
+    const stamp = `[${timestamp.toISOString()}] ${req.user} (Open): `
+    const createMsg = `Task created.`
+
+    // concat
+    const newNote = stamp + createMsg
+
+    // create date
+    const currentdate = timestamp.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
+
+    // insert
+    querystr = "INSERT INTO task (`Task_name`,`Task_description`,`Task_id`,`Task_app_Acronym`,`Task_creator`,`Task_owner`,`Task_state`,`Task_createDate`,`Task_notes`) VALUES (?,?,?,?,?,?,'Open',?,?)"
+    values = [Task_name, Task_description, Task_id, Task_app_Acronym, req.user, req.user, currentdate, newNote]
+    result = await executeQuery(querystr, values)
+
+    // increment app rnumber
+    querystr = "UPDATE application SET App_Rnumber = App_Rnumber + 1 WHERE App_Acronym = ?"
+    values = [Task_app_Acronym]
+    result = await executeQuery(querystr, values)
+
+    // return result
     return res.json({
-      unauth: "role"
+      success: true,
+      taskid: Task_id
+    })
+  } catch (e) {
+    console.log(e)
+    return res.json({
+      error: "Maximum number of tasks reached for this app."
     })
   }
-
-  // check that task name is not null
-  if (!Task_name) {
-    return res.json({
-      success: false,
-      message: "required"
-    })
-  }
-
-  // check if task name is duplicate
-  querystr = `SELECT * FROM task WHERE Task_name = ? AND Task_app_Acronym = ?`
-  values = [Task_name, Task_app_Acronym]
-
-  result = await executeQuery(querystr, values)
-  // return result
-  if (result.length > 0)
-    return res.json({
-      success: false,
-      message: "conflict"
-    })
-
-  // get task id
-  querystr = `SELECT App_Rnumber FROM application WHERE App_Acronym = ?`
-  values = [Task_app_Acronym]
-  result = await executeQuery(querystr, values)
-  const Task_id = Task_app_Acronym + "_" + result[0].App_Rnumber
-
-  // get current timestamp
-  const timestamp = new Date()
-
-  const stamp = `[${timestamp.toISOString()}] ${req.user} (Open): `
-  const createMsg = `Task created.`
-
-  // concat
-  const newNote = stamp + createMsg
-
-  // create date
-  const currentdate = timestamp.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
-
-  // insert
-  querystr = "INSERT INTO task (`Task_name`,`Task_description`,`Task_id`,`Task_app_Acronym`,`Task_creator`,`Task_owner`,`Task_state`,`Task_createDate`,`Task_notes`) VALUES (?,?,?,?,?,?,'Open',?,?)"
-  values = [Task_name, Task_description, Task_id, Task_app_Acronym, req.user, req.user, currentdate, newNote]
-  result = await executeQuery(querystr, values)
-
-  // increment app rnumber
-  querystr = "UPDATE application SET App_Rnumber = App_Rnumber + 1 WHERE App_Acronym = ?"
-  values = [Task_app_Acronym]
-  result = await executeQuery(querystr, values)
-
-  // return result
-  return res.json({
-    success: true,
-    taskid: Task_id
-  })
 })
 // post /task
 exports.getTask = catchAsyncErrors(async (req, res, next) => {
