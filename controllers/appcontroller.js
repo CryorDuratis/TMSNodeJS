@@ -46,9 +46,18 @@ exports.createApp = catchAsyncErrors(async (req, res, next) => {
     })
   } catch (e) {
     console.log(e)
-    return res.json({
-      error: "The value you entered is too long, please try again."
-    })
+    if (e.code === "ER_DATA_OUT_OF_RANGE") {
+      const match = error.message.match(/column '(.*?)'/)
+      const columnName = match ? match[1] : "unknown_column"
+      if (columnName === "App_Acronym")
+        return res.json({
+          error: "The App Acronym you entered is too long, please try again."
+        })
+      if (columnName === "App_Rnumber")
+        return res.json({
+          error: "The App Rnumber you entered is too large, please try again."
+        })
+    }
   }
 })
 // post /app/edit
@@ -82,6 +91,8 @@ exports.getApp = catchAsyncErrors(async (req, res, next) => {
   console.log("values: ", values)
 
   const result = await executeQuery(querystr, values)
+  console.log("rnum: ", result[0].App_Rnumber)
+  result[0].App_Rnumber = result[0].App_Rnumber.toString()
   // return result
   res.json({
     appData: result[0]
@@ -94,6 +105,10 @@ exports.allApps = catchAsyncErrors(async (req, res, next) => {
   var values = []
 
   const appsData = await executeQuery(querystr, values)
+  console.log(appsData)
+  appsData.map(app => {
+    app.App_Rnumber = app.App_Rnumber.toString()
+  })
 
   // return result
   res.json({

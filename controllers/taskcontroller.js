@@ -30,18 +30,6 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
       })
     }
 
-    // // check if task name is duplicate
-    // querystr = `SELECT * FROM task WHERE Task_name = ? AND Task_app_Acronym = ?`
-    // values = [Task_name, Task_app_Acronym]
-
-    // result = await executeQuery(querystr, values)
-    // // return result
-    // if (result.length > 0)
-    //   return res.json({
-    //     success: false,
-    //     message: "conflict"
-    //   })
-
     // get task id
     querystr = `SELECT App_Rnumber FROM application WHERE App_Acronym = ?`
     values = [Task_app_Acronym]
@@ -77,9 +65,18 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
     })
   } catch (e) {
     console.log(e)
-    return res.json({
-      error: "Maximum number of tasks reached for this app."
-    })
+    if (e.code === "ER_DATA_OUT_OF_RANGE") {
+      const match = error.message.match(/column '(.*?)'/)
+      const columnName = match ? match[1] : "unknown_column"
+      if (columnName === "Task_name")
+        return res.json({
+          error: "The Task name you entered is too long, please try again."
+        })
+      if (columnName === "App_Rnumber")
+        return res.json({
+          error: "Maximum number of tasks reached, please make a new app."
+        })
+    }
   }
 })
 // post /task
