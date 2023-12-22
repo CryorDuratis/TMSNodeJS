@@ -77,6 +77,11 @@ exports.createTask = catchAsyncErrors(async (req, res, next) => {
           error: "Maximum number of tasks reached, please make a new app."
         })
     }
+    if (e.code === "ER_DUP_ENTRY") {
+      return res.json({
+        success: false
+      })
+    }
   }
 })
 // post /task
